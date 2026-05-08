@@ -207,6 +207,28 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - `make test` passou
   - `make build` passou
   - API em `:8080` continuou respondendo `/health` e `/rag/ask`
+- [x] **T081** - Versionar baseline funcional em Git
+  - Commits pequenos para infra, API, RAG components, scripts e docs
+  - Histórico inicial pronto para evoluir no GitHub
+- [x] **T082** - Implementar provider Gemini para demo/deploy
+  - Adicionar embeddings com `gemini-embedding-001`
+  - Adicionar geração com `gemini-2.5-flash-lite`
+  - Manter embeddings em 768 dimensões
+- [x] **T083** - Adicionar CI inicial com GitHub Actions
+  - Rodar testes em push/PR
+  - Rodar build da API
+- [x] **T084** - Preparar runtime Docker da API
+  - Trocar Dockerfile de banco por Dockerfile multi-stage da API
+  - Normalizar `PORT` numérico para ambientes cloud
+  - Adicionar `.dockerignore`
+- [x] **T085** - Preparar schema automático para deploy
+  - Criar extensão `vector` quando disponível
+  - Criar tabelas `rag_documents` e `rag_chunks`
+  - Validar dimensão da coluna de embedding no startup
+- [x] **T086** - Adicionar blueprint inicial de Render
+  - Configurar runtime Docker
+  - Configurar health check
+  - Declarar env vars esperadas sem secrets
 
 ---
 
@@ -229,6 +251,26 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Explicar problema, arquitetura e como rodar
   - Documentar modo local com Ollama
   - Incluir curls principais e limitações conhecidas
+
+### Deploy
+- [ ] **T087** - Criar banco gerenciado com pgvector
+  - Preferência: Neon ou Supabase free tier
+  - Obter `DATABASE_URL`
+  - Confirmar `CREATE EXTENSION vector`
+- [ ] **T088** - Obter `GEMINI_API_KEY`
+  - Criar chave no Google AI Studio
+  - Configurar secret no ambiente de deploy
+- [ ] **T089** - Fazer push para GitHub e validar CI
+  - Enviar branch `feature/gemini-provider`
+  - Confirmar GitHub Actions verde
+- [ ] **T090** - Fazer deploy inicial da API
+  - Usar Render blueprint ou plataforma equivalente
+  - Configurar `DATABASE_URL` e `GEMINI_API_KEY`
+  - Validar `/health`
+- [ ] **T091** - Criar seed de documentos de demo
+  - Conteúdo sobre produção de conteúdo em ML Engineering/RAG
+  - Rodar ingestão/seed após deploy
+  - Validar `/rag/ask` público
 
 ---
 

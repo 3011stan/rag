@@ -258,6 +258,15 @@ Status em 2026-05-07:
 - API em `:8080` continuou respondendo `GET /health` e `POST /rag/ask`.
 - Tentativa de subir uma segunda instancia em `:8081` para validar o binario novo foi recusada na aprovacao do ambiente, entao nao foi repetida.
 
+Status em 2026-05-08:
+
+- Baseline funcional versionado em Git com commits pequenos.
+- Provider Gemini implementado para demo/deploy sem OpenAI.
+- CI inicial criado com GitHub Actions.
+- Dockerfile de API criado para deploy.
+- `render.yaml` adicionado como blueprint inicial.
+- Schema RAG agora e garantido no startup via `DATABASE_URL`.
+
 ### Fase 2 - Observabilidade De Pipeline
 
 Objetivo: mostrar maturidade de ML Engineering.
@@ -424,6 +433,12 @@ Decisao pendente:
 
 - Escolher plataforma de hospedagem final para a API e o banco.
 - Confirmar se a demo usara provider cloud ou Ollama hospedado.
+
+Decisao operacional atual:
+
+- API: preparar deploy inicial no Render Free Web Service.
+- Banco: preferir Neon ou Supabase free tier com pgvector.
+- IA: Gemini API free tier para embeddings e geracao.
 
 ---
 
