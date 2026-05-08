@@ -1,0 +1,16 @@
+This is a simple test document.
+
+Introduction
+This document contains information about the history of artificial intelligence.
+
+Chapter 1: Basics
+AI was first conceived as an academic discipline in 1956 at the Dartmouth Summer Research Project on Artificial Intelligence.
+
+Chapter 2: Evolution
+Over the decades, AI has evolved from symbolic reasoning to machine learning and deep learning approaches.
+
+Chapter 3: Applications
+Today, AI is used in many applications including natural language processing, computer vision, and robotics.
+
+Conclusion
+AI continues to be a rapidly evolving field with new discoveries and applications emerging regularly.
