@@ -59,3 +59,15 @@ func TestLoadRequiresOpenAIKeyForExplicitOpenAI(t *testing.T) {
 		t.Fatal("expected missing OpenAI key error")
 	}
 }
+
+func TestLoadNormalizesNumericPort(t *testing.T) {
+	t.Setenv("PORT", "10000")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load failed: %v", err)
+	}
+	if cfg.Port != ":10000" {
+		t.Fatalf("expected :10000, got %s", cfg.Port)
+	}
+}

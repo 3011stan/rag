@@ -1,10 +1,20 @@
-FROM postgres:15
+FROM golang:1.25-alpine AS build
 
-RUN apt-get update && apt-get install -y \
-    postgresql-server-dev-15 \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/* \
-    && git clone https://github.com/pgvector/pgvector.git /pgvector \
-    && cd /pgvector \
-    && make \
-    && make install
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /rag-app .
+
+FROM alpine:3.22
+
+RUN apk add --no-cache ca-certificates
+
+WORKDIR /app
+COPY --from=build /rag-app /app/rag-app
+
+EXPOSE 8080
+
+CMD ["/app/rag-app"]

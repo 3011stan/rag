@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -65,7 +66,7 @@ func Load() (*Config, error) {
 		ChunkTokens:         getEnvAsIntOrDefault("CHUNK_TOKENS", 800),
 		OverlapTokens:       getEnvAsIntOrDefault("OVERLAP_TOKENS", 100),
 		TopK:                getEnvAsIntOrDefault("TOP_K", 5),
-		Port:                getEnvOrDefault("PORT", ":8080"),
+		Port:                normalizePort(getEnvOrDefault("PORT", ":8080")),
 		Env:                 getEnvOrDefault("ENVIRONMENT", "development"),
 	}
 
@@ -152,4 +153,18 @@ func getEnvAsIntOrDefault(key string, defaultValue int) int {
 	}
 
 	return result
+}
+
+func normalizePort(port string) string {
+	port = strings.TrimSpace(port)
+	if port == "" {
+		return ":8080"
+	}
+	if strings.HasPrefix(port, ":") {
+		return port
+	}
+	if _, err := strconv.Atoi(port); err == nil {
+		return ":" + port
+	}
+	return port
 }
