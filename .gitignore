@@ -1,0 +1,22 @@
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Build artifacts
+rag-app
+bin/
+dist/
+
+# Go
+coverage.out
+*.test
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
+
+# Local data and temporary files
+tmp/
+*.log
