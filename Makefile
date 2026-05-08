@@ -2,7 +2,7 @@ GOCACHE ?= /private/tmp/rag-go-build-cache
 APP ?= rag-app
 OLLAMA_BASE_URL ?= http://localhost:11434
 
-.PHONY: test build run db-up db-down db-migrate db-status db-reset ollama-check api-health
+.PHONY: test build run db-up db-down db-migrate db-status db-reset ollama-check api-health seed-demo
 
 test:
 	GOCACHE=$(GOCACHE) go test ./...
@@ -34,3 +34,6 @@ ollama-check:
 
 api-health:
 	curl -i http://localhost:8080/health
+
+seed-demo:
+	GOCACHE=$(GOCACHE) go run ./cmd/seed_demo
