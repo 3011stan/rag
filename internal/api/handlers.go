@@ -46,6 +46,9 @@ func NewAPIServer(cfg *config.Config) (*APIServer, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create vector store: %w", err)
 	}
+	if err := vs.EnsureSchema(context.Background(), cfg.EmbeddingDimensions); err != nil {
+		return nil, fmt.Errorf("failed to ensure vector store schema: %w", err)
+	}
 
 	// Criar providers de IA. Em modo auto, OpenAI é usado quando há chave;
 	// caso contrário, Ollama mantém o fluxo local/offline.
