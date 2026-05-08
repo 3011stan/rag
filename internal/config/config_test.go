@@ -18,6 +18,14 @@ func TestResolvedAIProvider_AutoWithOpenAIKeyUsesOpenAI(t *testing.T) {
 	}
 }
 
+func TestResolvedAIProvider_AutoWithGeminiKeyUsesGemini(t *testing.T) {
+	cfg := &Config{AIProvider: ProviderAuto, GeminiAPIKey: "gemini-test"}
+
+	if got := cfg.ResolvedAIProvider(); got != ProviderGemini {
+		t.Fatalf("expected %s, got %s", ProviderGemini, got)
+	}
+}
+
 func TestResolvedAIProvider_ExplicitProviderWins(t *testing.T) {
 	cfg := &Config{AIProvider: ProviderOllama, OpenAIAPIKey: "sk-test"}
 
@@ -31,6 +39,15 @@ func TestLoadRejectsInvalidProvider(t *testing.T) {
 
 	if _, err := Load(); err == nil {
 		t.Fatal("expected invalid provider error")
+	}
+}
+
+func TestLoadRequiresGeminiKeyForExplicitGemini(t *testing.T) {
+	t.Setenv("AI_PROVIDER", ProviderGemini)
+	t.Setenv("GEMINI_API_KEY", "")
+
+	if _, err := Load(); err == nil {
+		t.Fatal("expected missing Gemini key error")
 	}
 }
 

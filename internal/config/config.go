@@ -8,6 +8,7 @@ import (
 
 const (
 	ProviderAuto   = "auto"
+	ProviderGemini = "gemini"
 	ProviderOllama = "ollama"
 	ProviderOpenAI = "openai"
 )
@@ -24,6 +25,10 @@ type Config struct {
 
 	// OpenAI
 	OpenAIAPIKey string
+
+	// Gemini
+	GeminiAPIKey  string
+	GeminiBaseURL string
 
 	// Ollama
 	OllamaBaseURL    string
@@ -52,6 +57,8 @@ func Load() (*Config, error) {
 		LLMModel:            getEnvOrDefault("LLM_MODEL", ""),
 		EmbeddingDimensions: getEnvAsIntOrDefault("EMBEDDING_DIMENSIONS", 768),
 		OpenAIAPIKey:        getEnvOrDefault("OPENAI_API_KEY", ""),
+		GeminiAPIKey:        getEnvOrDefault("GEMINI_API_KEY", ""),
+		GeminiBaseURL:       getEnvOrDefault("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta"),
 		OllamaBaseURL:       getEnvOrDefault("OLLAMA_BASE_URL", "http://localhost:11434"),
 		OllamaEmbedModel:    getEnvOrDefault("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
 		OllamaLLMModel:      getEnvOrDefault("OLLAMA_LLM_MODEL", "mistral"),
@@ -69,10 +76,16 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("DATABASE_URL is required")
 	}
 
-	if cfg.AIProvider != ProviderAuto && cfg.AIProvider != ProviderOllama && cfg.AIProvider != ProviderOpenAI {
-		return nil, fmt.Errorf("AI_PROVIDER must be one of: auto, ollama, openai")
+	if cfg.AIProvider != ProviderAuto &&
+		cfg.AIProvider != ProviderGemini &&
+		cfg.AIProvider != ProviderOllama &&
+		cfg.AIProvider != ProviderOpenAI {
+		return nil, fmt.Errorf("AI_PROVIDER must be one of: auto, gemini, ollama, openai")
 	}
 
+	if cfg.AIProvider == ProviderGemini && cfg.GeminiAPIKey == "" {
+		return nil, fmt.Errorf("GEMINI_API_KEY is required when AI_PROVIDER=gemini")
+	}
 	if cfg.AIProvider == ProviderOpenAI && cfg.OpenAIAPIKey == "" {
 		return nil, fmt.Errorf("OPENAI_API_KEY is required when AI_PROVIDER=openai")
 	}
@@ -85,6 +98,9 @@ func (cfg *Config) ResolvedAIProvider() string {
 	if cfg.AIProvider != ProviderAuto {
 		return cfg.AIProvider
 	}
+	if cfg.GeminiAPIKey != "" {
+		return ProviderGemini
+	}
 	if cfg.OpenAIAPIKey != "" {
 		return ProviderOpenAI
 	}
@@ -92,6 +108,16 @@ func (cfg *Config) ResolvedAIProvider() string {
 }
 
 func (cfg *Config) applyModelDefaults() {
+	if cfg.ResolvedAIProvider() == ProviderGemini {
+		if cfg.EmbeddingModel == "" {
+			cfg.EmbeddingModel = "gemini-embedding-001"
+		}
+		if cfg.LLMModel == "" {
+			cfg.LLMModel = "gemini-2.5-flash-lite"
+		}
+		return
+	}
+
 	if cfg.EmbeddingModel == "" {
 		cfg.EmbeddingModel = cfg.OllamaEmbedModel
 	}

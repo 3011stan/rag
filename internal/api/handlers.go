@@ -52,6 +52,16 @@ func NewAPIServer(cfg *config.Config) (*APIServer, error) {
 	var embProvider embeddings.Provider
 	var qaService qa.Service
 	switch cfg.ResolvedAIProvider() {
+	case config.ProviderGemini:
+		embProvider = embeddings.NewGeminiProvider(
+			cfg.GeminiAPIKey,
+			cfg.GeminiBaseURL,
+			cfg.EmbeddingModel,
+			cfg.EmbeddingDimensions,
+		)
+		qaService = qa.NewGeminiQAService(cfg.GeminiAPIKey, cfg.GeminiBaseURL, cfg.LLMModel).
+			WithTemperature(0.3).
+			WithTopK(cfg.TopK)
 	case config.ProviderOllama:
 		embProvider = embeddings.NewOllamaProvider(cfg.OllamaBaseURL, cfg.EmbeddingModel)
 		qaService = qa.NewOllamaQAService(cfg.OllamaBaseURL, cfg.LLMModel).
