@@ -4,6 +4,7 @@ services:
     runtime: docker
     plan: free
     healthCheckPath: /health
+    preDeployCommand: /app/seed-demo
     autoDeploy: true
     envVars:
       - key: AI_PROVIDER
