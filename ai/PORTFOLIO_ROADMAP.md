@@ -96,6 +96,7 @@ Decisao atual:
 
 - Preparar o backend de forma agnostica com Docker.
 - Escolher a plataforma final depois que backend e demo estiverem prontos.
+- Usar GitHub Actions para uma pipeline simples de CI/CD.
 
 ### Dataset De Demonstracao
 
@@ -375,6 +376,54 @@ Opcoes:
 - **Portfolio minimo**: GitHub + README forte + video curto.
 - **Portfolio intermediario**: UI local + screenshots + eval report.
 - **Portfolio avancado**: demo hospedada + artigo + relatorio de experimentos.
+
+### Estrategia De Deploy Recomendada
+
+O projeto deve ser preparado para deploy sem depender de uma plataforma especifica.
+
+Arquitetura de deploy:
+
+- API Go empacotada em Docker.
+- Banco PostgreSQL com extensao pgvector.
+- Documentos de demo pre-carregados por script/job de seed.
+- `AI_PROVIDER` configuravel por ambiente.
+- Upload publico desabilitado por padrao em producao.
+
+Ambientes:
+
+- `local`: Docker Compose + Ollama + Postgres local.
+- `staging` ou `demo`: API hospedada + Postgres gerenciado + provider cloud ou Ollama remoto, se viavel.
+- `production/portfolio`: demo estavel com documentos pre-carregados.
+
+Pipeline simples com GitHub Actions:
+
+1. Rodar testes em todo push/PR:
+   - checkout;
+   - setup Go;
+   - cache de dependencias;
+   - `go test ./...`;
+   - `go build`.
+2. Em merge na `main`:
+   - build da imagem Docker;
+   - push para registry, por exemplo GitHub Container Registry;
+   - disparar deploy na plataforma escolhida.
+3. Depois do deploy:
+   - health check em `/health`;
+   - opcionalmente rodar smoke test em `/rag/ask` com dataset pre-carregado.
+
+Primeira versao da pipeline:
+
+- CI apenas: testes e build.
+- Sem deploy automatico ate escolhermos a plataforma.
+
+Segunda versao:
+
+- CD: build/push Docker image e deploy automatico.
+
+Decisao pendente:
+
+- Escolher plataforma de hospedagem final para a API e o banco.
+- Confirmar se a demo usara provider cloud ou Ollama hospedado.
 
 ---
 
