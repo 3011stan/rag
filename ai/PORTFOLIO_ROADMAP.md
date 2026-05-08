@@ -54,6 +54,80 @@ Limitacoes atuais:
 
 ---
 
+## Decisoes De Produto E Portfolio
+
+Estas decisoes guiam as proximas refatoracoes e evitam otimizar o projeto para um caminho errado.
+
+### Demo Publica
+
+- A demo publica deve usar documentos pre-carregados.
+- Upload publico livre deve ficar desabilitado por padrao.
+- Upload pode existir no modo local/dev ou em modo protegido.
+- Motivo: reduzir risco de abuso, custo, arquivos inadequados e complexidade operacional.
+
+### Providers
+
+- Local/dev: Ollama.
+- Deploy/demo: `AI_PROVIDER` configuravel.
+- Provider cloud pode ser usado na demo se Ollama for pesado demais para hospedar.
+- O backend deve continuar Docker-first e provider-agnostic.
+
+### Frontend
+
+- Frontend fica para depois que o backend estiver pronto e estavel.
+- Quando chegar a hora, a UI deve ser simples e demonstravel:
+  - lista de documentos;
+  - pergunta/resposta;
+  - fontes/chunks recuperados;
+  - painel de debug/latencia.
+
+### Deploy Target
+
+Deploy target significa o ambiente/plataforma onde o projeto sera publicado.
+
+Nao sao bibliotecas Go. Exemplos:
+
+- Render, Fly.io e Railway: plataformas para hospedar a API/backend.
+- Vercel e Netlify: plataformas para hospedar frontend.
+- Postgres gerenciado: banco hospedado por um provedor cloud.
+- Docker Compose: ambiente local/reproduzivel para desenvolvimento.
+
+Decisao atual:
+
+- Preparar o backend de forma agnostica com Docker.
+- Escolher a plataforma final depois que backend e demo estiverem prontos.
+
+### Dataset De Demonstracao
+
+O dataset da demo nao sera apenas sobre conteudo tecnico puro.
+
+Direcao escolhida:
+
+> RAG para apoiar producao de conteudo sobre Machine Learning Engineering, RAG, arquitetura de software e temas relacionados.
+
+Isso conecta melhor com uma ideia futura de produto/conteudo e ainda demonstra conhecimento tecnico.
+
+Exemplos de documentos/dados para a demo:
+
+- notas sobre conceitos de RAG;
+- resumos de papers;
+- outlines de posts/artigos;
+- guias internos ficticios de producao de conteudo tecnico;
+- documentos sobre estrategia editorial para temas de ML Engineering.
+
+### Idioma
+
+- README principal, commits, nomes de features e documentacao final de portfolio devem ser em ingles.
+- Podemos manter notas internas em portugues quando fizer sentido durante o desenvolvimento.
+
+### Git
+
+- Usar Conventional Commits.
+- Commits pequenos e narrativos.
+- Antes de refatorar, versionar o baseline atual em blocos para preservar a historia de evolucao.
+
+---
+
 ## O Que Importa Em Um Projeto RAG Forte
 
 ### 1. Ingestao
@@ -245,6 +319,7 @@ Entregavel:
 
 Objetivo: tornar o projeto demonstravel para recrutadores e avaliadores.
 
+- Esta fase deve comecar apenas depois que o backend estiver pronto e estavel.
 - Criar UI simples:
   - upload de PDF;
   - lista de documentos;
@@ -293,6 +368,7 @@ Recomendacao:
 - Evitar upload publico irrestrito.
 - Se Ollama ficar pesado no servidor, usar provider cloud barato apenas na demo.
 - Um video/GIF pode ser suficiente se o custo de deploy for alto.
+- A plataforma final de deploy sera escolhida depois; por enquanto o projeto deve ser Docker-first e cloud-agnostic.
 
 Opcoes:
 
