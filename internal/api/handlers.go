@@ -14,6 +14,7 @@ import (
 	"github.com/stan/Projects/studies/rag/internal/rag/chunker"
 	"github.com/stan/Projects/studies/rag/internal/rag/embeddings"
 	"github.com/stan/Projects/studies/rag/internal/rag/loader"
+	"github.com/stan/Projects/studies/rag/internal/rag/providers"
 	"github.com/stan/Projects/studies/rag/internal/rag/qa"
 	"github.com/stan/Projects/studies/rag/internal/rag/retriever"
 )
@@ -50,33 +51,13 @@ func NewAPIServer(cfg *config.Config) (*APIServer, error) {
 		return nil, fmt.Errorf("failed to ensure vector store schema: %w", err)
 	}
 
-	// Criar providers de IA. Em modo auto, OpenAI é usado quando há chave;
-	// caso contrário, Ollama mantém o fluxo local/offline.
-	var embProvider embeddings.Provider
-	var qaService qa.Service
-	switch cfg.ResolvedAIProvider() {
-	case config.ProviderGemini:
-		embProvider = embeddings.NewGeminiProvider(
-			cfg.GeminiAPIKey,
-			cfg.GeminiBaseURL,
-			cfg.EmbeddingModel,
-			cfg.EmbeddingDimensions,
-		)
-		qaService = qa.NewGeminiQAService(cfg.GeminiAPIKey, cfg.GeminiBaseURL, cfg.LLMModel).
-			WithTemperature(0.3).
-			WithTopK(cfg.TopK)
-	case config.ProviderOllama:
-		embProvider = embeddings.NewOllamaProvider(cfg.OllamaBaseURL, cfg.EmbeddingModel)
-		qaService = qa.NewOllamaQAService(cfg.OllamaBaseURL, cfg.LLMModel).
-			WithTemperature(0.3).
-			WithTopK(cfg.TopK)
-	case config.ProviderOpenAI:
-		embProvider = embeddings.NewOpenAIProvider(cfg.OpenAIAPIKey)
-		qaService = qa.NewQAService(cfg.OpenAIAPIKey).
-			WithTemperature(0.3).
-			WithTopK(cfg.TopK)
-	default:
-		return nil, fmt.Errorf("unsupported AI provider: %s", cfg.ResolvedAIProvider())
+	embProvider, err := providers.NewEmbeddingProvider(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create embedding provider: %w", err)
+	}
+	qaService, err := providers.NewQAService(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create QA service: %w", err)
 	}
 
 	// Criar Chunker
