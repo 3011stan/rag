@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: rag-lab-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: AI_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: GEMINI_BASE_URL
+        value: https://generativelanguage.googleapis.com/v1beta
+      - key: EMBEDDING_MODEL
+        value: gemini-embedding-001
+      - key: LLM_MODEL
+        value: gemini-2.5-flash-lite
+      - key: EMBEDDING_DIMENSIONS
+        value: "768"
+      - key: CHUNK_TOKENS
+        value: "800"
+      - key: OVERLAP_TOKENS
+        value: "100"
+      - key: TOP_K
+        value: "5"
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: info

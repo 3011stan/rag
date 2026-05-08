@@ -1,0 +1,9 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+rag-app
+tmp
+*.log
+.DS_Store
