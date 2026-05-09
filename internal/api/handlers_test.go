@@ -366,6 +366,57 @@ func TestIngestHandler_RequiresAdminTokenWhenPublicUploadDisabled(t *testing.T) 
 	}
 }
 
+func TestIngestHandler_ReturnsNotFoundWhenUploadDisabledWithoutAdminToken(t *testing.T) {
+	server := &APIServer{
+		cfg: &config.Config{
+			PublicUploadEnabled: false,
+			MaxUploadBytes:      10 << 20,
+		},
+	}
+
+	req := httptest.NewRequest("POST", "/rag/ingest", nil)
+	w := httptest.NewRecorder()
+
+	server.IngestHandler().ServeHTTP(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("expected status 404, got %d", w.Code)
+	}
+}
+
+func TestSeedDemoHandlerRequiresAdminToken(t *testing.T) {
+	server := &APIServer{
+		cfg: &config.Config{AdminToken: "test-admin-token"},
+	}
+
+	req := httptest.NewRequest("POST", "/admin/seed-demo", nil)
+	w := httptest.NewRecorder()
+
+	server.SeedDemoHandler().ServeHTTP(w, req)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Fatalf("expected status 401, got %d", w.Code)
+	}
+}
+
+func TestSecurityHeadersMiddleware(t *testing.T) {
+	handler := SecurityHeadersMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+
+	req := httptest.NewRequest("GET", "/health", nil)
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, req)
+
+	if got := w.Header().Get("X-Content-Type-Options"); got != "nosniff" {
+		t.Fatalf("expected nosniff header, got %q", got)
+	}
+	if got := w.Header().Get("X-Frame-Options"); got != "DENY" {
+		t.Fatalf("expected DENY frame header, got %q", got)
+	}
+}
+
 func TestParseAndValidateQuestionRequiresJSONContentType(t *testing.T) {
 	server := &APIServer{cfg: &config.Config{TopK: 5}}
 	req := httptest.NewRequest("POST", "/rag/ask", bytes.NewBufferString(`{"question":"hello"}`))
