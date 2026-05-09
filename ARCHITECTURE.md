@@ -26,6 +26,7 @@ The RAG pipeline coordinates application behavior:
 - `internal/rag`: domain models and PostgreSQL/pgvector storage.
 - `internal/rag/answering`: prompt construction and LLM-backed answer generation.
 - `internal/rag/embeddings`: embedding provider implementations.
+- `internal/rag/loader`: document loader strategies for PDF, Markdown, and plain text.
 - `internal/rag/pipeline`: application service that coordinates RAG workflows.
 - `internal/rag/retriever`: semantic retrieval over the vector store.
 - `internal/demo/seed`: curated demo document seeding.

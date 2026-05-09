@@ -90,11 +90,16 @@ Health check:
 curl http://localhost:8080/health
 ```
 
-Ingest a PDF:
+Ingest a PDF, Markdown, or text file:
 
 ```bash
 curl -X POST http://localhost:8080/rag/ingest \
   -F 'file=@/path/to/document.pdf'
+```
+
+```bash
+curl -X POST http://localhost:8080/rag/ingest \
+  -F 'file=@/path/to/notes.md;type=text/markdown'
 ```
 
 Ask a question:
@@ -164,6 +169,7 @@ Render Free does not support pre-deploy commands in Blueprint services. After th
 ## Security Defaults
 
 - Public PDF upload is disabled in production with `ENABLE_PUBLIC_UPLOAD=false`.
+- Supported protected upload formats are PDF, Markdown, and plain text.
 - Protected endpoints accept `Authorization: Bearer <ADMIN_TOKEN>`.
 - Uploads are limited by `MAX_UPLOAD_BYTES`, defaulting to 10 MB.
 - JSON question payloads are limited and must use `Content-Type: application/json`.

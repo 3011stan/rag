@@ -23,7 +23,7 @@ func (srv *APIServer) SeedDemoHandler() http.HandlerFunc {
 		ctx, cancel := context.WithTimeout(r.Context(), seedTimeout)
 		defer cancel()
 
-		seeded, err := demoseed.Directory(ctx, demoseed.DefaultDocsDir, srv.vs, srv.embedder, srv.chunker)
+		seeded, err := demoseed.Directory(ctx, demoseed.DefaultDocsDir, srv.pipeline)
 		if err != nil {
 			logging.FromContext(ctx).Error().Err(err).Msg("demo seed failed")
 			respondError(w, "failed to seed demo documents", http.StatusInternalServerError, nil)

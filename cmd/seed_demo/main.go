@@ -13,6 +13,9 @@ import (
 	demoseed "github.com/stan/Projects/studies/rag/internal/demo/seed"
 	"github.com/stan/Projects/studies/rag/internal/rag"
 	"github.com/stan/Projects/studies/rag/internal/rag/chunker"
+	"github.com/stan/Projects/studies/rag/internal/rag/loader"
+	ragpipeline "github.com/stan/Projects/studies/rag/internal/rag/pipeline"
+	"github.com/stan/Projects/studies/rag/internal/rag/retriever"
 )
 
 func main() {
@@ -45,6 +48,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to create embedding provider: %v", err)
 	}
+	answerer, err := ai.NewAnsweringService(cfg)
+	if err != nil {
+		log.Fatalf("failed to create answering service: %v", err)
+	}
 
 	chk, err := chunker.NewChunker(chunker.ChunkerConfig{
 		ChunkTokens:   cfg.ChunkTokens,
@@ -54,7 +61,10 @@ func main() {
 		log.Fatalf("failed to create chunker: %v", err)
 	}
 
-	seeded, err := demoseed.Directory(ctx, docsDir, store, embedder, chk)
+	ret := retriever.NewRetriever(store, embedder, cfg.TopK)
+	pipeline := ragpipeline.New(store, embedder, chk, loader.DefaultRegistry(), ret, answerer)
+
+	seeded, err := demoseed.Directory(ctx, docsDir, pipeline)
 	if err != nil {
 		log.Fatalf("failed to seed demo docs: %v", err)
 	}

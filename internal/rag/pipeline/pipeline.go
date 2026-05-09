@@ -17,7 +17,7 @@ type Pipeline struct {
 	store     rag.VectorStore
 	embedder  embeddings.Provider
 	chunker   *chunker.Chunker
-	pdfLoader *loader.PDFLoader
+	loaders   *loader.Registry
 	retriever *retriever.Retriever
 	answerer  answering.Service
 }
@@ -43,38 +43,46 @@ func New(
 	store rag.VectorStore,
 	embedder embeddings.Provider,
 	chunker *chunker.Chunker,
-	pdfLoader *loader.PDFLoader,
+	loaders *loader.Registry,
 	retriever *retriever.Retriever,
 	answerer answering.Service,
 ) *Pipeline {
+	if loaders == nil {
+		loaders = loader.DefaultRegistry()
+	}
+
 	return &Pipeline{
 		store:     store,
 		embedder:  embedder,
 		chunker:   chunker,
-		pdfLoader: pdfLoader,
+		loaders:   loaders,
 		retriever: retriever,
 		answerer:  answerer,
 	}
 }
 
-func (p *Pipeline) IngestPDF(ctx context.Context, fileData []byte, fileName string) (*IngestResult, error) {
+func (p *Pipeline) Ingest(ctx context.Context, source loader.Source) (*IngestResult, error) {
 	logger := logging.FromContext(ctx)
 
-	doc, text, err := p.pdfLoader.LoadPDF(fileData, fileName)
+	loaded, err := p.loaders.Load(ctx, source)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse PDF: %w", err)
+		return nil, fmt.Errorf("failed to load document: %w", err)
 	}
+
+	doc := loaded.Document
+	text := loaded.Text
 
 	logger.Info().
 		Int("char_count", len(text)).
-		Str("filename", fileName).
-		Msg("PDF text extracted")
+		Str("filename", source.Name).
+		Str("source_type", doc.Source).
+		Msg("document text extracted")
 
-	if err := p.store.InsertDocument(ctx, *doc); err != nil {
+	if err := p.store.InsertDocument(ctx, doc); err != nil {
 		return nil, fmt.Errorf("failed to insert document: %w", err)
 	}
 
-	chunks, err := p.chunker.ChunkText(doc.ID, text, nil)
+	chunks, err := p.chunker.ChunkText(doc.ID, text, doc.Metadata)
 	if err != nil {
 		return nil, fmt.Errorf("failed to chunk text: %w", err)
 	}
@@ -112,6 +120,14 @@ func (p *Pipeline) IngestPDF(ctx context.Context, fileData []byte, fileName stri
 		DocumentID: doc.ID,
 		ChunkCount: len(chunks),
 	}, nil
+}
+
+func (p *Pipeline) IngestPDF(ctx context.Context, fileData []byte, fileName string) (*IngestResult, error) {
+	return p.Ingest(ctx, loader.Source{
+		Name:        fileName,
+		ContentType: "application/pdf",
+		Data:        fileData,
+	})
 }
 
 func (p *Pipeline) Ask(ctx context.Context, question string, topK int) (*AnswerResult, error) {

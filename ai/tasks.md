@@ -269,7 +269,7 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Explicar problema, arquitetura e como rodar
   - Documentar modo local com Ollama
   - Incluir curls principais e limitações conhecidas
-- [ ] **T098** - Adicionar ingestao multi-formato com Strategy Pattern
+- [x] **T098** - Adicionar ingestao multi-formato com Strategy Pattern
   - Suportar upload protegido de `.pdf`, `.md` e `.txt`
   - Criar contrato comum de loader/parser para documentos
   - Implementar estrategias `PDFLoader`, `MarkdownLoader` e `TextLoader`

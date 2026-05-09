@@ -3,10 +3,12 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/stan/Projects/studies/rag/internal/logging"
+	"github.com/stan/Projects/studies/rag/internal/rag/loader"
 )
 
 func (srv *APIServer) IngestHandler() http.HandlerFunc {
@@ -25,7 +27,7 @@ func (srv *APIServer) IngestHandler() http.HandlerFunc {
 		r.Body = http.MaxBytesReader(w, r.Body, srv.cfg.MaxUploadBytes)
 
 		logger := logging.FromContext(ctx)
-		fileData, fileName, err := srv.parseAndValidateFile(r)
+		uploaded, err := srv.parseAndValidateFile(r)
 		if err != nil {
 			logger.Warn().Err(err).Msg("validation failed")
 			respondError(w, err.Error(), http.StatusBadRequest, nil)
@@ -33,12 +35,23 @@ func (srv *APIServer) IngestHandler() http.HandlerFunc {
 		}
 
 		logger.Info().
-			Str("filename", fileName).
-			Int("size_bytes", len(fileData)).
-			Msg("processing PDF")
+			Str("filename", uploaded.Name).
+			Str("content_type", uploaded.ContentType).
+			Int("size_bytes", len(uploaded.Data)).
+			Msg("processing document")
 
-		result, err := srv.pipeline.IngestPDF(ctx, fileData, fileName)
+		result, err := srv.pipeline.Ingest(ctx, loader.Source{
+			Name:        uploaded.Name,
+			ContentType: uploaded.ContentType,
+			Data:        uploaded.Data,
+		})
 		if err != nil {
+			if errors.Is(err, loader.ErrUnsupportedType) || errors.Is(err, loader.ErrInvalidDocument) {
+				logger.Warn().Err(err).Msg("document validation failed")
+				respondError(w, err.Error(), http.StatusBadRequest, nil)
+				return
+			}
+
 			logger.Error().Err(err).Msg("ingest pipeline failed")
 			respondError(w, "failed to ingest document", http.StatusInternalServerError, nil)
 			return
@@ -50,7 +63,7 @@ func (srv *APIServer) IngestHandler() http.HandlerFunc {
 			DocumentID: result.DocumentID,
 			ChunkCount: result.ChunkCount,
 			Status:     "success",
-			Message:    fmt.Sprintf("Successfully ingested PDF: %s", fileName),
+			Message:    fmt.Sprintf("Successfully ingested document: %s", uploaded.Name),
 		})
 	}
 }

@@ -62,9 +62,8 @@ func NewAPIServer(cfg *config.Config) (*APIServer, error) {
 		return nil, fmt.Errorf("failed to create chunker: %w", err)
 	}
 
-	pdfLoader := loader.NewPDFLoader(0)
 	retriever := retriever.NewRetriever(vs, embedder, cfg.TopK)
-	pipeline := ragpipeline.New(vs, embedder, chunker, pdfLoader, retriever, answerer)
+	pipeline := ragpipeline.New(vs, embedder, chunker, loader.DefaultRegistry(), retriever, answerer)
 
 	return &APIServer{
 		cfg:      cfg,
