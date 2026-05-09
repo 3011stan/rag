@@ -257,22 +257,22 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Incluir curls principais e limitações conhecidas
 
 ### Deploy
-- [ ] **T088** - Criar banco gerenciado com pgvector
+- [x] **T088** - Criar banco gerenciado com pgvector
   - Usar Supabase Postgres
   - Obter `DATABASE_URL`
   - Usar Supabase Session pooler no Render para evitar falha de IPv6
   - Confirmar `CREATE EXTENSION vector`
-- [ ] **T089** - Obter `GEMINI_API_KEY`
+- [x] **T089** - Obter `GEMINI_API_KEY`
   - Criar chave no Google AI Studio
   - Configurar secret no ambiente de deploy
-- [ ] **T090** - Fazer push para GitHub e validar CI
-  - Enviar branch `feature/gemini-provider`
+- [x] **T090** - Fazer push para GitHub e validar CI
+  - Enviar branch `main`
   - Confirmar GitHub Actions verde
-- [ ] **T091** - Fazer deploy inicial da API
+- [x] **T091** - Fazer deploy inicial da API
   - Usar Render blueprint ou plataforma equivalente
   - Configurar `DATABASE_URL`, `GEMINI_API_KEY` e `ADMIN_TOKEN`
   - Validar `/health`
-- [ ] **T092** - Criar seed de documentos de demo
+- [x] **T092** - Criar seed de documentos de demo
   - Conteúdo sobre produção de conteúdo em ML Engineering/RAG
   - Rodar ingestão/seed após deploy
   - Validar `/rag/ask` público
