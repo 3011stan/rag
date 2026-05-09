@@ -47,7 +47,8 @@ type Config struct {
 	Port string
 
 	// Application
-	Env string // development, production
+	Env        string // development, production
+	AdminToken string
 }
 
 func Load() (*Config, error) {
@@ -68,6 +69,7 @@ func Load() (*Config, error) {
 		TopK:                getEnvAsIntOrDefault("TOP_K", 5),
 		Port:                normalizePort(getEnvOrDefault("PORT", ":8080")),
 		Env:                 getEnvOrDefault("ENVIRONMENT", "development"),
+		AdminToken:          getEnvOrDefault("ADMIN_TOKEN", ""),
 	}
 
 	cfg.applyModelDefaults()

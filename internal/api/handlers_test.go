@@ -305,3 +305,44 @@ func TestFullPipelineWithContext(t *testing.T) {
 		// Context is valid
 	}
 }
+
+func TestIsAuthorizedAdminRequest(t *testing.T) {
+	server := &APIServer{
+		cfg: &config.Config{AdminToken: "test-admin-token"},
+	}
+
+	t.Run("accepts bearer token", func(t *testing.T) {
+		req := httptest.NewRequest("POST", "/admin/seed-demo", nil)
+		req.Header.Set("Authorization", "Bearer test-admin-token")
+
+		if !server.isAuthorizedAdminRequest(req) {
+			t.Fatal("expected bearer token to be accepted")
+		}
+	})
+
+	t.Run("accepts admin token header", func(t *testing.T) {
+		req := httptest.NewRequest("POST", "/admin/seed-demo", nil)
+		req.Header.Set("X-Admin-Token", "test-admin-token")
+
+		if !server.isAuthorizedAdminRequest(req) {
+			t.Fatal("expected X-Admin-Token to be accepted")
+		}
+	})
+
+	t.Run("rejects missing token", func(t *testing.T) {
+		req := httptest.NewRequest("POST", "/admin/seed-demo", nil)
+
+		if server.isAuthorizedAdminRequest(req) {
+			t.Fatal("expected missing token to be rejected")
+		}
+	})
+
+	t.Run("rejects invalid token", func(t *testing.T) {
+		req := httptest.NewRequest("POST", "/admin/seed-demo", nil)
+		req.Header.Set("Authorization", "Bearer wrong-token")
+
+		if server.isAuthorizedAdminRequest(req) {
+			t.Fatal("expected invalid token to be rejected")
+		}
+	})
+}

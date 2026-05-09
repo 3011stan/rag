@@ -4,7 +4,6 @@ services:
     runtime: docker
     plan: free
     healthCheckPath: /health
-    preDeployCommand: /app/seed-demo
     autoDeploy: true
     envVars:
       - key: AI_PROVIDER
@@ -12,6 +11,8 @@ services:
       - key: GEMINI_API_KEY
         sync: false
       - key: DATABASE_URL
+        sync: false
+      - key: ADMIN_TOKEN
         sync: false
       - key: GEMINI_BASE_URL
         value: https://generativelanguage.googleapis.com/v1beta

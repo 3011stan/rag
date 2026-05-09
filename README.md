@@ -13,7 +13,7 @@ The project is being shaped as a Machine Learning Engineering portfolio project.
 - Local/offline development with Ollama.
 - Free-tier friendly deploy path with Gemini.
 - Automatic schema initialization on startup.
-- Demo content seeding command.
+- Demo content seeding command and protected admin seed endpoint.
 - GitHub Actions CI for tests and build.
 - Docker runtime for API deployment.
 
@@ -111,10 +111,11 @@ Seed demo content:
 make seed-demo
 ```
 
-Inside the deployment container, the equivalent command is:
+On a deployed demo, seed the bundled documents through the protected admin endpoint:
 
 ```bash
-/app/seed-demo
+curl -X POST https://YOUR-RENDER-URL/admin/seed-demo \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
 ```
 
 ## Deployment Plan
@@ -132,6 +133,7 @@ Required production environment variables:
 DATABASE_URL=postgres://...
 AI_PROVIDER=gemini
 GEMINI_API_KEY=...
+ADMIN_TOKEN=...
 GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
 EMBEDDING_MODEL=gemini-embedding-001
 LLM_MODEL=gemini-2.5-flash-lite
@@ -143,11 +145,11 @@ ENVIRONMENT=production
 LOG_LEVEL=info
 ```
 
-Never commit real secrets to GitHub. Set `DATABASE_URL` and `GEMINI_API_KEY` in the hosting provider dashboard.
+Never commit real secrets to GitHub. Set `DATABASE_URL`, `GEMINI_API_KEY`, and `ADMIN_TOKEN` in the hosting provider dashboard.
 
 The app initializes the RAG schema on startup. The database user must be allowed to create the `vector` extension or the extension must already be enabled.
 
-On Render, the blueprint runs `/app/seed-demo` as a pre-deploy command. This seeds the bundled demo documents before the API starts.
+Render Free does not support pre-deploy commands in Blueprint services. After the service is live, call `POST /admin/seed-demo` with `ADMIN_TOKEN` to seed the bundled demo documents.
 
 ## Portfolio Direction
 

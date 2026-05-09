@@ -2,13 +2,16 @@ package api
 
 import (
 	"context"
+	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/stan/Projects/studies/rag/internal/config"
+	demoseed "github.com/stan/Projects/studies/rag/internal/demo/seed"
 	"github.com/stan/Projects/studies/rag/internal/logging"
 	"github.com/stan/Projects/studies/rag/internal/rag"
 	"github.com/stan/Projects/studies/rag/internal/rag/chunker"
@@ -27,6 +30,7 @@ const (
 	maxTopK           = 20
 	ingestTimeout     = 5 * time.Minute
 	askTimeout        = 2 * time.Minute
+	seedTimeout       = 10 * time.Minute
 )
 
 // APIServer contém as dependências para os handlers
@@ -122,6 +126,11 @@ type ErrorResponse struct {
 	Code    int    `json:"code"`
 }
 
+type SeedDemoResponse struct {
+	Seeded int    `json:"seeded"`
+	Status string `json:"status"`
+}
+
 // IngestHandler processa o upload e ingestão de PDFs
 func (srv *APIServer) IngestHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -213,6 +222,40 @@ func (srv *APIServer) AskHandler() http.HandlerFunc {
 	}
 }
 
+func (srv *APIServer) SeedDemoHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if srv.cfg.AdminToken == "" {
+			respondError(w, "admin endpoint is disabled", http.StatusNotFound, nil)
+			return
+		}
+		if !srv.isAuthorizedAdminRequest(r) {
+			respondError(w, "unauthorized", http.StatusUnauthorized, nil)
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(r.Context(), seedTimeout)
+		defer cancel()
+
+		seeded, err := demoseed.Directory(ctx, demoseed.DefaultDocsDir, srv.vs, srv.embedder, srv.chunker)
+		if err != nil {
+			logging.FromContext(ctx).Error().Err(err).Msg("demo seed failed")
+			respondError(w, "failed to seed demo documents", http.StatusInternalServerError, err)
+			return
+		}
+
+		logging.FromContext(ctx).Info().
+			Int("seeded", seeded).
+			Msg("demo documents seeded")
+
+		w.Header().Set(contentTypeHeader, contentTypeJSON)
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(SeedDemoResponse{
+			Seeded: seeded,
+			Status: "success",
+		})
+	}
+}
+
 // Helper methods
 
 func (srv *APIServer) parseAndValidateFile(r *http.Request) (*rag.Document, []byte, string, error) {
@@ -242,6 +285,21 @@ func (srv *APIServer) parseAndValidateFile(r *http.Request) (*rag.Document, []by
 
 	doc := &rag.Document{} // Será populado pelo PDF Loader
 	return doc, fileData, header.Filename, nil
+}
+
+func (srv *APIServer) isAuthorizedAdminRequest(r *http.Request) bool {
+	token := r.Header.Get("X-Admin-Token")
+	if token == "" {
+		auth := r.Header.Get("Authorization")
+		if !strings.HasPrefix(auth, "Bearer ") {
+			return false
+		}
+		token = strings.TrimSpace(strings.TrimPrefix(auth, "Bearer "))
+	}
+	if token == "" {
+		return false
+	}
+	return subtle.ConstantTimeCompare([]byte(token), []byte(srv.cfg.AdminToken)) == 1
 }
 
 func (srv *APIServer) ingestPipeline(ctx context.Context, doc *rag.Document, fileData []byte, fileName string) (int, error) {

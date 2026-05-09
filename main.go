@@ -49,6 +49,7 @@ func main() {
 	// Registrar endpoints com handlers completos
 	router.Post("/rag/ingest", server.IngestHandler())
 	router.Post("/rag/ask", server.AskHandler())
+	router.Post("/admin/seed-demo", server.SeedDemoHandler())
 
 	// Iniciar servidor
 	log.Info().

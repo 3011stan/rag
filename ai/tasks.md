@@ -229,6 +229,10 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Configurar runtime Docker
   - Configurar health check
   - Declarar env vars esperadas sem secrets
+- [x] **T087** - Adaptar seed de demo para Render Free
+  - Remover `preDeployCommand`, que nao e suportado no free tier
+  - Criar endpoint protegido `POST /admin/seed-demo`
+  - Documentar `ADMIN_TOKEN` como secret manual de deploy
 
 ---
 
@@ -253,28 +257,29 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Incluir curls principais e limitações conhecidas
 
 ### Deploy
-- [ ] **T087** - Criar banco gerenciado com pgvector
+- [ ] **T088** - Criar banco gerenciado com pgvector
   - Usar Supabase Postgres
   - Obter `DATABASE_URL`
   - Confirmar `CREATE EXTENSION vector`
-- [ ] **T088** - Obter `GEMINI_API_KEY`
+- [ ] **T089** - Obter `GEMINI_API_KEY`
   - Criar chave no Google AI Studio
   - Configurar secret no ambiente de deploy
-- [ ] **T089** - Fazer push para GitHub e validar CI
+- [ ] **T090** - Fazer push para GitHub e validar CI
   - Enviar branch `feature/gemini-provider`
   - Confirmar GitHub Actions verde
-- [ ] **T090** - Fazer deploy inicial da API
+- [ ] **T091** - Fazer deploy inicial da API
   - Usar Render blueprint ou plataforma equivalente
-  - Configurar `DATABASE_URL` e `GEMINI_API_KEY`
+  - Configurar `DATABASE_URL`, `GEMINI_API_KEY` e `ADMIN_TOKEN`
   - Validar `/health`
-- [ ] **T091** - Criar seed de documentos de demo
+- [ ] **T092** - Criar seed de documentos de demo
   - Conteúdo sobre produção de conteúdo em ML Engineering/RAG
   - Rodar ingestão/seed após deploy
   - Validar `/rag/ask` público
-- [ ] **T092** - Garantir política de secrets
+- [ ] **T093** - Garantir política de secrets
   - Não commitar `.env`
   - Documentar configuração manual de `DATABASE_URL`
   - Documentar configuração manual de `GEMINI_API_KEY`
+  - Documentar configuração manual de `ADMIN_TOKEN`
   - Usar GitHub Secrets apenas se a pipeline precisar
 
 ---

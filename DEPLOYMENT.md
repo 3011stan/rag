@@ -7,7 +7,7 @@ This project is prepared for a low-cost public API deployment.
 - API: Render Free Web Service, Docker runtime.
 - Database: Neon or Supabase free tier with pgvector.
 - AI provider: Gemini API free tier.
-- Demo data: bundled markdown documents seeded during deploy.
+- Demo data: bundled markdown documents seeded through a protected admin endpoint.
 
 ## Required Accounts
 
@@ -24,6 +24,7 @@ Do not commit:
 - `.env`
 - full `DATABASE_URL` values with real passwords
 - `GEMINI_API_KEY`
+- `ADMIN_TOKEN`
 - provider tokens
 - database passwords
 
@@ -98,17 +99,19 @@ You must manually provide secret values:
 ```env
 DATABASE_URL=postgresql://postgres:<YOUR-PASSWORD>@db.glkogcmzzyazhoefynui.supabase.co:5432/postgres?sslmode=require
 GEMINI_API_KEY=<YOUR-GEMINI-API-KEY>
+ADMIN_TOKEN=<LONG-RANDOM-SECRET>
 ```
 
 In Render, mark these as secret environment variables. The values should not appear in committed files, logs, screenshots, issues, or pull requests.
 
-The blueprint runs this pre-deploy command:
+Render Free does not support Blueprint `preDeployCommand` for free services. After the first successful deploy, seed demo documents by calling:
 
 ```bash
-/app/seed-demo
+curl -X POST https://YOUR-RENDER-URL/admin/seed-demo \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
 ```
 
-That command inserts the bundled demo documents into the vector store.
+That endpoint inserts the bundled demo documents into the vector store. If `ADMIN_TOKEN` is not set, the endpoint is disabled.
 
 ## 4. Smoke Test
 
@@ -138,5 +141,6 @@ Deployment cannot be completed until these values exist:
 
 - `DATABASE_URL`
 - `GEMINI_API_KEY`
+- `ADMIN_TOKEN`
 
 Once those are available, the API can be deployed from the current `main` branch.
