@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/stan/Projects/studies/rag/internal/ai"
 	"github.com/stan/Projects/studies/rag/internal/config"
 	demoseed "github.com/stan/Projects/studies/rag/internal/demo/seed"
 	"github.com/stan/Projects/studies/rag/internal/rag"
 	"github.com/stan/Projects/studies/rag/internal/rag/chunker"
-	"github.com/stan/Projects/studies/rag/internal/rag/providers"
 )
 
 func main() {
@@ -41,7 +41,7 @@ func main() {
 		log.Fatalf("failed to ensure schema: %v", err)
 	}
 
-	embedder, err := providers.NewEmbeddingProvider(cfg)
+	embedder, err := ai.NewEmbeddingProvider(cfg)
 	if err != nil {
 		log.Fatalf("failed to create embedding provider: %v", err)
 	}

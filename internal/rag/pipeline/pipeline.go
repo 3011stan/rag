@@ -6,10 +6,10 @@ import (
 
 	"github.com/stan/Projects/studies/rag/internal/logging"
 	"github.com/stan/Projects/studies/rag/internal/rag"
+	"github.com/stan/Projects/studies/rag/internal/rag/answering"
 	"github.com/stan/Projects/studies/rag/internal/rag/chunker"
 	"github.com/stan/Projects/studies/rag/internal/rag/embeddings"
 	"github.com/stan/Projects/studies/rag/internal/rag/loader"
-	"github.com/stan/Projects/studies/rag/internal/rag/qa"
 	"github.com/stan/Projects/studies/rag/internal/rag/retriever"
 )
 
@@ -19,7 +19,7 @@ type Pipeline struct {
 	chunker   *chunker.Chunker
 	pdfLoader *loader.PDFLoader
 	retriever *retriever.Retriever
-	answerer  qa.Service
+	answerer  answering.Service
 }
 
 type IngestResult struct {
@@ -45,7 +45,7 @@ func New(
 	chunker *chunker.Chunker,
 	pdfLoader *loader.PDFLoader,
 	retriever *retriever.Retriever,
-	answerer qa.Service,
+	answerer answering.Service,
 ) *Pipeline {
 	return &Pipeline{
 		store:     store,

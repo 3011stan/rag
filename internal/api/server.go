@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/stan/Projects/studies/rag/internal/ai"
 	"github.com/stan/Projects/studies/rag/internal/config"
 	"github.com/stan/Projects/studies/rag/internal/rag"
 	"github.com/stan/Projects/studies/rag/internal/rag/chunker"
 	"github.com/stan/Projects/studies/rag/internal/rag/embeddings"
 	"github.com/stan/Projects/studies/rag/internal/rag/loader"
 	ragpipeline "github.com/stan/Projects/studies/rag/internal/rag/pipeline"
-	"github.com/stan/Projects/studies/rag/internal/rag/providers"
 	"github.com/stan/Projects/studies/rag/internal/rag/retriever"
 )
 
@@ -45,11 +45,11 @@ func NewAPIServer(cfg *config.Config) (*APIServer, error) {
 		return nil, fmt.Errorf("failed to ensure vector store schema: %w", err)
 	}
 
-	embedder, err := providers.NewEmbeddingProvider(cfg)
+	embedder, err := ai.NewEmbeddingProvider(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create embedding provider: %w", err)
 	}
-	answerer, err := providers.NewQAService(cfg)
+	answerer, err := ai.NewAnsweringService(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create QA service: %w", err)
 	}
