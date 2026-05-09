@@ -253,7 +253,7 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Garantir testes de regressão para `/health`, `/rag/ask`, `/rag/ingest` protegido e `/admin/seed-demo`
   - Manter compatibilidade dos endpoints públicos durante toda a refatoração
   - Validar localmente com `make test`, `make build` e smoke tests contra a API deployada
-- [ ] **T077** - Criar `RAGPipeline`
+- [x] **T077** - Criar `RAGPipeline`
   - Mover pipeline de ingestão para fora dos handlers HTTP
   - Mover pipeline de ask para fora dos handlers HTTP
   - Manter os contratos atuais de `/rag/ingest` e `/rag/ask`
