@@ -245,7 +245,7 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
 ## ❌ TAREFAS DE PORTFOLIO PENDENTES
 
 ### Consolidação do MVP
-- [ ] **T097** - Refatorar API e estabelecer padrões de projeto
+- [x] **T097** - Refatorar API e estabelecer padrões de projeto
   - Quebrar `internal/api/handlers.go` em arquivos menores por responsabilidade
   - Criar camada de contratos HTTP para requests/responses
   - Criar `RAGPipeline`/serviço de aplicação antes de mover lógica dos handlers
