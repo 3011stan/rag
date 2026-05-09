@@ -15,6 +15,24 @@ This project is prepared for a low-cost public API deployment.
 - Neon or Supabase project for PostgreSQL.
 - Google AI Studio API key for Gemini.
 
+## Secrets Policy
+
+Never commit secrets to GitHub.
+
+Do not commit:
+
+- `.env`
+- full `DATABASE_URL` values with real passwords
+- `GEMINI_API_KEY`
+- provider tokens
+- database passwords
+
+This repository intentionally tracks only `.env.example`, with empty or placeholder values.
+
+Set production secrets directly in the hosting provider dashboard, for example Render Environment Variables.
+
+Use GitHub repository secrets only when GitHub Actions itself needs the value. The current CI does not need production secrets because it only runs tests and build.
+
 ## 1. Create The Database
 
 Create a PostgreSQL database on Neon or Supabase.
@@ -37,6 +55,14 @@ This is the value for:
 DATABASE_URL=...
 ```
 
+For the current Supabase project, use this safe template:
+
+```text
+postgresql://postgres:<YOUR-PASSWORD>@db.glkogcmzzyazhoefynui.supabase.co:5432/postgres?sslmode=require
+```
+
+Replace `<YOUR-PASSWORD>` manually only in the deployment provider secret field. Do not save the completed URL in Git.
+
 The API also attempts to create the extension and tables on startup, but the database user must have permission to create the extension. If the provider requires extensions to be enabled through the dashboard, enable `vector` there first.
 
 ## 2. Create Gemini API Key
@@ -48,6 +74,8 @@ Use it as:
 ```env
 GEMINI_API_KEY=...
 ```
+
+Set this value manually in Render as an environment variable. Do not add it to GitHub unless a future GitHub Actions deployment workflow needs it.
 
 For public demo documents, avoid seeding private or sensitive content.
 
@@ -68,9 +96,11 @@ EMBEDDING_DIMENSIONS=768
 You must manually provide secret values:
 
 ```env
-DATABASE_URL=...
-GEMINI_API_KEY=...
+DATABASE_URL=postgresql://postgres:<YOUR-PASSWORD>@db.glkogcmzzyazhoefynui.supabase.co:5432/postgres?sslmode=require
+GEMINI_API_KEY=<YOUR-GEMINI-API-KEY>
 ```
+
+In Render, mark these as secret environment variables. The values should not appear in committed files, logs, screenshots, issues, or pull requests.
 
 The blueprint runs this pre-deploy command:
 

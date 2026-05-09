@@ -254,7 +254,7 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
 
 ### Deploy
 - [ ] **T087** - Criar banco gerenciado com pgvector
-  - Preferência: Neon ou Supabase free tier
+  - Usar Supabase Postgres
   - Obter `DATABASE_URL`
   - Confirmar `CREATE EXTENSION vector`
 - [ ] **T088** - Obter `GEMINI_API_KEY`
@@ -271,6 +271,11 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Conteúdo sobre produção de conteúdo em ML Engineering/RAG
   - Rodar ingestão/seed após deploy
   - Validar `/rag/ask` público
+- [ ] **T092** - Garantir política de secrets
+  - Não commitar `.env`
+  - Documentar configuração manual de `DATABASE_URL`
+  - Documentar configuração manual de `GEMINI_API_KEY`
+  - Usar GitHub Secrets apenas se a pipeline precisar
 
 ---
 

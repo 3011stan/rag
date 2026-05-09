@@ -143,6 +143,8 @@ ENVIRONMENT=production
 LOG_LEVEL=info
 ```
 
+Never commit real secrets to GitHub. Set `DATABASE_URL` and `GEMINI_API_KEY` in the hosting provider dashboard.
+
 The app initializes the RAG schema on startup. The database user must be allowed to create the `vector` extension or the extension must already be enabled.
 
 On Render, the blueprint runs `/app/seed-demo` as a pre-deploy command. This seeds the bundled demo documents before the API starts.

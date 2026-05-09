@@ -98,6 +98,15 @@ Decisao atual:
 - Escolher a plataforma final depois que backend e demo estiverem prontos.
 - Usar GitHub Actions para uma pipeline simples de CI/CD.
 
+### Secrets
+
+- Secrets nunca devem ser commitados no GitHub.
+- `.env` e `.env.*` devem permanecer ignorados pelo Git.
+- `.env.example` pode ser versionado apenas com placeholders.
+- `DATABASE_URL`, `GEMINI_API_KEY`, tokens de deploy e senhas devem ser configurados no provedor de hospedagem.
+- GitHub Secrets devem ser usados apenas quando a pipeline precisar acessar o valor.
+- A CI atual nao precisa de secrets porque roda apenas testes e build.
+
 ### Dataset De Demonstracao
 
 O dataset da demo nao sera apenas sobre conteudo tecnico puro.
@@ -437,8 +446,11 @@ Decisao pendente:
 Decisao operacional atual:
 
 - API: preparar deploy inicial no Render Free Web Service.
-- Banco: preferir Neon ou Supabase free tier com pgvector.
+- Banco: Supabase Postgres com pgvector.
 - IA: Gemini API free tier para embeddings e geracao.
+- Secrets de producao devem ser configurados manualmente no Render:
+  - `DATABASE_URL`
+  - `GEMINI_API_KEY`
 
 ---
 
