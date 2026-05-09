@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -78,6 +79,9 @@ func Load() (*Config, error) {
 	if cfg.DatabaseURL == "" {
 		return nil, fmt.Errorf("DATABASE_URL is required")
 	}
+	if err := validateDatabaseURL(cfg.DatabaseURL); err != nil {
+		return nil, err
+	}
 
 	if cfg.AIProvider != ProviderAuto &&
 		cfg.AIProvider != ProviderGemini &&
@@ -140,6 +144,32 @@ func getEnvOrDefault(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
+}
+
+func validateDatabaseURL(databaseURL string) error {
+	trimmed := strings.TrimSpace(databaseURL)
+	if trimmed == "" {
+		return fmt.Errorf("DATABASE_URL is required")
+	}
+
+	if strings.Contains(trimmed, "@") && !strings.Contains(trimmed, "://") {
+		return fmt.Errorf("DATABASE_URL must include a postgres:// or postgresql:// scheme; example: postgresql://postgres.<PROJECT-REF>:<PASSWORD>@aws-0-<REGION>.pooler.supabase.com:5432/postgres?sslmode=require")
+	}
+
+	if strings.Contains(trimmed, "://") {
+		parsed, err := url.Parse(trimmed)
+		if err != nil {
+			return fmt.Errorf("DATABASE_URL is invalid: %w", err)
+		}
+		if parsed.Scheme != "postgres" && parsed.Scheme != "postgresql" {
+			return fmt.Errorf("DATABASE_URL must use postgres:// or postgresql:// scheme")
+		}
+		if parsed.Host == "" {
+			return fmt.Errorf("DATABASE_URL must include a host")
+		}
+	}
+
+	return nil
 }
 
 func getEnvAsIntOrDefault(key string, defaultValue int) int {

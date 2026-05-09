@@ -70,6 +70,8 @@ For Render, prefer the Supabase **Session pooler** connection string from the Su
 postgresql://postgres.<PROJECT-REF>:<YOUR-PASSWORD>@aws-0-<REGION>.pooler.supabase.com:5432/postgres?sslmode=require
 ```
 
+The `postgresql://` prefix is required. Without it, the Go PostgreSQL driver treats the value as keyword/value syntax and startup fails with `invalid keyword/value`.
+
 Use **Session mode**, not Transaction mode, because this API is a persistent backend service and the Go database driver can keep long-lived database sessions.
 
 Replace `<YOUR-PASSWORD>` manually only in the deployment provider secret field. Do not save the completed URL in Git.

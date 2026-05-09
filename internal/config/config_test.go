@@ -71,3 +71,23 @@ func TestLoadNormalizesNumericPort(t *testing.T) {
 		t.Fatalf("expected :10000, got %s", cfg.Port)
 	}
 }
+
+func TestLoadRejectsDatabaseURLWithoutScheme(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgres.project-ref:password@aws-0-us-west-2.pooler.supabase.com:5432/postgres")
+
+	if _, err := Load(); err == nil {
+		t.Fatal("expected DATABASE_URL format error")
+	}
+}
+
+func TestLoadAcceptsPostgresDatabaseURL(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgresql://postgres.project-ref:password@aws-0-us-west-2.pooler.supabase.com:5432/postgres?sslmode=require")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load failed: %v", err)
+	}
+	if cfg.DatabaseURL == "" {
+		t.Fatal("expected database URL")
+	}
+}
