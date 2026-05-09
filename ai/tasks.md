@@ -260,6 +260,7 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
 - [ ] **T088** - Criar banco gerenciado com pgvector
   - Usar Supabase Postgres
   - Obter `DATABASE_URL`
+  - Usar Supabase Session pooler no Render para evitar falha de IPv6
   - Confirmar `CREATE EXTENSION vector`
 - [ ] **T089** - Obter `GEMINI_API_KEY`
   - Criar chave no Google AI Studio
@@ -281,6 +282,11 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Documentar configuração manual de `GEMINI_API_KEY`
   - Documentar configuração manual de `ADMIN_TOKEN`
   - Usar GitHub Secrets apenas se a pipeline precisar
+- [ ] **T094** - Automatizar observabilidade e redeploy do Render
+  - Adicionar workflow GitHub Actions para disparar deploy via Render API
+  - Consultar status do deploy automaticamente
+  - Rodar smoke tests de `/health`, `/admin/seed-demo` e `/rag/ask`
+  - Documentar `RENDER_API_KEY`, `RENDER_SERVICE_ID` e `RENDER_SERVICE_URL` como GitHub Secrets futuros
 
 ---
 

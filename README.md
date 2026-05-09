@@ -147,6 +147,8 @@ LOG_LEVEL=info
 
 Never commit real secrets to GitHub. Set `DATABASE_URL`, `GEMINI_API_KEY`, and `ADMIN_TOKEN` in the hosting provider dashboard.
 
+For Supabase on Render, use the Supabase Session pooler connection string instead of the direct database URL. The direct Supabase hostname can resolve to IPv6, which can fail on Render with `network is unreachable`.
+
 The app initializes the RAG schema on startup. The database user must be allowed to create the `vector` extension or the extension must already be enabled.
 
 Render Free does not support pre-deploy commands in Blueprint services. After the service is live, call `POST /admin/seed-demo` with `ADMIN_TOKEN` to seed the bundled demo documents.

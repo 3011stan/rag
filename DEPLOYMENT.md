@@ -56,11 +56,21 @@ This is the value for:
 DATABASE_URL=...
 ```
 
-For the current Supabase project, use this safe template:
+For the current Supabase project, the direct connection template is:
 
 ```text
 postgresql://postgres:<YOUR-PASSWORD>@db.glkogcmzzyazhoefynui.supabase.co:5432/postgres?sslmode=require
 ```
+
+Do not use the direct connection string on Render Free if it resolves to IPv6. Render can fail with `network is unreachable` when connecting to Supabase direct hostnames over IPv6.
+
+For Render, prefer the Supabase **Session pooler** connection string from the Supabase dashboard:
+
+```text
+postgresql://postgres.<PROJECT-REF>:<YOUR-PASSWORD>@aws-0-<REGION>.pooler.supabase.com:5432/postgres?sslmode=require
+```
+
+Use **Session mode**, not Transaction mode, because this API is a persistent backend service and the Go database driver can keep long-lived database sessions.
 
 Replace `<YOUR-PASSWORD>` manually only in the deployment provider secret field. Do not save the completed URL in Git.
 
@@ -101,6 +111,8 @@ DATABASE_URL=postgresql://postgres:<YOUR-PASSWORD>@db.glkogcmzzyazhoefynui.supab
 GEMINI_API_KEY=<YOUR-GEMINI-API-KEY>
 ADMIN_TOKEN=<LONG-RANDOM-SECRET>
 ```
+
+For Supabase on Render, replace the direct `DATABASE_URL` above with the Supabase Session pooler URL from Project Settings > Database > Connection string > Session pooler.
 
 In Render, mark these as secret environment variables. The values should not appear in committed files, logs, screenshots, issues, or pull requests.
 
