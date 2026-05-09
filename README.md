@@ -185,3 +185,5 @@ The roadmap is to evolve it into a RAG engineering lab with:
 - later, a small UI for the portfolio.
 
 See [ai/PORTFOLIO_ROADMAP.md](ai/PORTFOLIO_ROADMAP.md) for the full plan.
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the current backend package layout.

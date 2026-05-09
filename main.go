@@ -15,45 +15,36 @@ import (
 )
 
 func main() {
-	// Inicializar logging
 	logging.Init()
 
-	// Carregar variáveis de ambiente do arquivo .env
 	_ = godotenv.Load()
 
-	// Carregar configuração
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to load configuration")
 	}
 
-	// Criar API Server com todas as dependências
 	server, err := api.NewAPIServer(cfg)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to initialize API server")
 	}
 
-	// Criar roteador
 	router := chi.NewRouter()
 
-	// Middleware
 	router.Use(logging.RequestIDMiddleware)
 	router.Use(logging.LoggingMiddleware)
 	router.Use(api.SecurityHeadersMiddleware)
 	router.Use(middleware.Recoverer)
 
-	// Health check
 	router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	})
 
-	// Registrar endpoints com handlers completos
 	router.Post("/rag/ingest", server.IngestHandler())
 	router.Post("/rag/ask", server.AskHandler())
 	router.Post("/admin/seed-demo", server.SeedDemoHandler())
 
-	// Iniciar servidor
 	log.Info().
 		Str("port", cfg.Port).
 		Msg("starting API server")

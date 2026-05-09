@@ -10,46 +10,45 @@ import (
 	"github.com/stan/Projects/studies/rag/internal/rag"
 )
 
-// ChunkerConfig contém configurações para chunking
 type ChunkerConfig struct {
 	ChunkTokens   int
 	OverlapTokens int
 }
 
-// Chunker responsável por quebrar texto em chunks
 type Chunker struct {
 	config    ChunkerConfig
 	tokenizer *tiktoken.Tiktoken
 }
 
-// NewChunker cria uma nova instância do Chunker
 func NewChunker(config ChunkerConfig) (*Chunker, error) {
-	tokenizer, err := tiktoken.GetEncoding("cl100k_base")
-	if err != nil {
-		return nil, fmt.Errorf("failed to load tokenizer: %w", err)
+	if config.ChunkTokens <= 0 {
+		return nil, fmt.Errorf("chunk tokens must be positive")
+	}
+	if config.OverlapTokens < 0 || config.OverlapTokens >= config.ChunkTokens {
+		return nil, fmt.Errorf("overlap tokens must be non-negative and smaller than chunk tokens")
 	}
 
+	tokenizer, _ := tiktoken.GetEncoding("cl100k_base")
 	return &Chunker{
 		config:    config,
 		tokenizer: tokenizer,
 	}, nil
 }
 
-// ChunkText quebra um texto em chunks com overlap
 func (c *Chunker) ChunkText(documentID string, text string, metadata map[string]interface{}) ([]rag.Chunk, error) {
-	// Normalizar texto
 	text = normalizeText(text)
 	if text == "" {
 		return []rag.Chunk{}, nil
 	}
+	if c.tokenizer == nil {
+		return c.chunkWords(documentID, text, metadata), nil
+	}
 
-	// Tokenizar todo o texto
 	tokens := c.tokenizer.Encode(text, nil, nil)
 
 	var chunks []rag.Chunk
 	var chunkIndex int
 
-	// Quebrar em chunks com overlap
 	for i := 0; i < len(tokens); i += (c.config.ChunkTokens - c.config.OverlapTokens) {
 		end := i + c.config.ChunkTokens
 		if end > len(tokens) {
@@ -61,7 +60,6 @@ func (c *Chunker) ChunkText(documentID string, text string, metadata map[string]
 			continue
 		}
 
-		// Decodificar tokens para texto
 		chunkText := c.tokenizer.Decode(chunkTokens)
 		chunkText = strings.TrimSpace(chunkText)
 
@@ -78,7 +76,6 @@ func (c *Chunker) ChunkText(documentID string, text string, metadata map[string]
 			chunkIndex++
 		}
 
-		// Se chegou ao fim, não continuar
 		if end == len(tokens) {
 			break
 		}
@@ -87,10 +84,34 @@ func (c *Chunker) ChunkText(documentID string, text string, metadata map[string]
 	return chunks, nil
 }
 
-// Helper functions
+func (c *Chunker) chunkWords(documentID, text string, metadata map[string]interface{}) []rag.Chunk {
+	words := strings.Fields(text)
+	step := c.config.ChunkTokens - c.config.OverlapTokens
+	chunks := make([]rag.Chunk, 0, (len(words)/step)+1)
+
+	for start, index := 0, 0; start < len(words); start, index = start+step, index+1 {
+		end := start + c.config.ChunkTokens
+		if end > len(words) {
+			end = len(words)
+		}
+
+		chunks = append(chunks, rag.Chunk{
+			ID:         uuid.New().String(),
+			DocumentID: documentID,
+			ChunkIndex: index,
+			Content:    strings.Join(words[start:end], " "),
+			TokenCount: end - start,
+			Metadata:   metadata,
+		})
+		if end == len(words) {
+			break
+		}
+	}
+
+	return chunks
+}
 
 func normalizeText(text string) string {
-	// Remover caracteres de controle
 	text = strings.Map(func(r rune) rune {
 		if unicode.IsControl(r) && r != '\n' && r != '\r' && r != '\t' {
 			return -1
@@ -98,7 +119,6 @@ func normalizeText(text string) string {
 		return r
 	}, text)
 
-	// Remover espaços extras
 	text = strings.Join(strings.Fields(text), " ")
 
 	return strings.TrimSpace(text)

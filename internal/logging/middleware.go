@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// RequestIDMiddleware adiciona um request_id único a cada request
+// RequestIDMiddleware attaches a request ID to the request context and response.
 func RequestIDMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestID := r.Header.Get(RequestIDHeader)
@@ -15,28 +15,22 @@ func RequestIDMiddleware(next http.Handler) http.Handler {
 			requestID = uuid.New().String()
 		}
 
-		// Adicionar request_id ao contexto
 		ctx := ContextWithRequestID(r.Context(), requestID)
-
-		// Adicionar header na resposta
 		w.Header().Set(RequestIDHeader, requestID)
 
-		// Chamar próximo handler com contexto atualizado
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-// LoggingMiddleware faz logging de requests e responses
+// LoggingMiddleware logs request metadata and response status.
 func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger := FromContext(r.Context())
 
 		start := time.Now()
 
-		// Wrapper para capturar status code
 		statusWriter := &statusWriter{ResponseWriter: w, statusCode: http.StatusOK}
 
-		// Log do request
 		logger.Info().
 			Str("method", r.Method).
 			Str("path", r.URL.Path).
@@ -44,10 +38,8 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 			Str("user_agent", r.Header.Get("User-Agent")).
 			Msg("incoming request")
 
-		// Executar handler
 		next.ServeHTTP(statusWriter, r)
 
-		// Log da resposta
 		duration := time.Since(start)
 		logger.Info().
 			Str("method", r.Method).
@@ -58,7 +50,6 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// statusWriter wrapper para capturar o status code da resposta
 type statusWriter struct {
 	http.ResponseWriter
 	statusCode int

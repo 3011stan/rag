@@ -19,13 +19,12 @@ const (
 
 // OllamaQAService gera respostas usando um modelo local servido pelo Ollama.
 type OllamaQAService struct {
-	baseURL          string
-	model            string
-	client           *http.Client
-	promptTemplate   *PromptTemplate
-	maxContextTokens int
-	temperature      float32
-	topK             int
+	baseURL        string
+	model          string
+	client         *http.Client
+	promptTemplate *PromptTemplate
+	temperature    float32
+	topK           int
 }
 
 type ollamaGenerateRequest struct {
@@ -49,13 +48,12 @@ func NewOllamaQAService(baseURL, model string) *OllamaQAService {
 	}
 
 	return &OllamaQAService{
-		baseURL:          strings.TrimRight(baseURL, "/"),
-		model:            model,
-		client:           &http.Client{Timeout: 5 * time.Minute},
-		promptTemplate:   DefaultPromptTemplate(),
-		maxContextTokens: 2000,
-		temperature:      0.3,
-		topK:             5,
+		baseURL:        strings.TrimRight(baseURL, "/"),
+		model:          model,
+		client:         &http.Client{Timeout: 5 * time.Minute},
+		promptTemplate: DefaultPromptTemplate(),
+		temperature:    0.3,
+		topK:           5,
 	}
 }
 
