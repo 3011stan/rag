@@ -245,6 +245,14 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
 ## ❌ TAREFAS DE PORTFOLIO PENDENTES
 
 ### Consolidação do MVP
+- [ ] **T097** - Refatorar API e estabelecer padrões de projeto
+  - Quebrar `internal/api/handlers.go` em arquivos menores por responsabilidade
+  - Criar camada de contratos HTTP para requests/responses
+  - Criar `RAGPipeline`/serviço de aplicação antes de mover lógica dos handlers
+  - Definir padrão de erros, validação, autenticação admin e middlewares
+  - Garantir testes de regressão para `/health`, `/rag/ask`, `/rag/ingest` protegido e `/admin/seed-demo`
+  - Manter compatibilidade dos endpoints públicos durante toda a refatoração
+  - Validar localmente com `make test`, `make build` e smoke tests contra a API deployada
 - [ ] **T077** - Criar `RAGPipeline`
   - Mover pipeline de ingestão para fora dos handlers HTTP
   - Mover pipeline de ask para fora dos handlers HTTP
