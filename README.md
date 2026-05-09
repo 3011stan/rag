@@ -134,6 +134,8 @@ DATABASE_URL=postgres://...
 AI_PROVIDER=gemini
 GEMINI_API_KEY=...
 ADMIN_TOKEN=...
+ENABLE_PUBLIC_UPLOAD=false
+MAX_UPLOAD_BYTES=10485760
 GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
 EMBEDDING_MODEL=gemini-embedding-001
 LLM_MODEL=gemini-2.5-flash-lite
@@ -158,6 +160,15 @@ DATABASE_URL=postgresql://postgres.<PROJECT-REF>:<PASSWORD>@aws-0-<REGION>.poole
 The app initializes the RAG schema on startup. The database user must be allowed to create the `vector` extension or the extension must already be enabled.
 
 Render Free does not support pre-deploy commands in Blueprint services. After the service is live, call `POST /admin/seed-demo` with `ADMIN_TOKEN` to seed the bundled demo documents.
+
+## Security Defaults
+
+- Public PDF upload is disabled in production with `ENABLE_PUBLIC_UPLOAD=false`.
+- Protected endpoints accept `Authorization: Bearer <ADMIN_TOKEN>`.
+- Uploads are limited by `MAX_UPLOAD_BYTES`, defaulting to 10 MB.
+- JSON question payloads are limited and must use `Content-Type: application/json`.
+- Basic security headers are set on every response.
+- Prompt templates explicitly treat retrieved documents as untrusted content.
 
 ## Portfolio Direction
 

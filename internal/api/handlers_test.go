@@ -346,3 +346,45 @@ func TestIsAuthorizedAdminRequest(t *testing.T) {
 		}
 	})
 }
+
+func TestIngestHandler_RequiresAdminTokenWhenPublicUploadDisabled(t *testing.T) {
+	server := &APIServer{
+		cfg: &config.Config{
+			AdminToken:          "test-admin-token",
+			PublicUploadEnabled: false,
+			MaxUploadBytes:      10 << 20,
+		},
+	}
+
+	req := httptest.NewRequest("POST", "/rag/ingest", nil)
+	w := httptest.NewRecorder()
+
+	server.IngestHandler().ServeHTTP(w, req)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Fatalf("expected status 401, got %d", w.Code)
+	}
+}
+
+func TestParseAndValidateQuestionRequiresJSONContentType(t *testing.T) {
+	server := &APIServer{cfg: &config.Config{TopK: 5}}
+	req := httptest.NewRequest("POST", "/rag/ask", bytes.NewBufferString(`{"question":"hello"}`))
+
+	if _, err := server.parseAndValidateQuestion(req); err == nil {
+		t.Fatal("expected content type validation error")
+	}
+}
+
+func TestParseAndValidateQuestionTrimsQuestion(t *testing.T) {
+	server := &APIServer{cfg: &config.Config{TopK: 5}}
+	req := httptest.NewRequest("POST", "/rag/ask", bytes.NewBufferString(`{"question":"  hello  "}`))
+	req.Header.Set("Content-Type", "application/json")
+
+	parsed, err := server.parseAndValidateQuestion(req)
+	if err != nil {
+		t.Fatalf("expected valid request: %v", err)
+	}
+	if parsed.Question != "hello" {
+		t.Fatalf("expected trimmed question, got %q", parsed.Question)
+	}
+}

@@ -104,6 +104,8 @@ GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
 EMBEDDING_MODEL=gemini-embedding-001
 LLM_MODEL=gemini-2.5-flash-lite
 EMBEDDING_DIMENSIONS=768
+ENABLE_PUBLIC_UPLOAD=false
+MAX_UPLOAD_BYTES=10485760
 ```
 
 You must manually provide secret values:
@@ -127,7 +129,17 @@ curl -X POST https://YOUR-RENDER-URL/admin/seed-demo \
 
 That endpoint inserts the bundled demo documents into the vector store. If `ADMIN_TOKEN` is not set, the endpoint is disabled.
 
-## 4. Smoke Test
+## 4. Security Checks
+
+For the public demo:
+
+- Keep `ENABLE_PUBLIC_UPLOAD=false`.
+- Keep `ADMIN_TOKEN` secret and rotate it if exposed.
+- Do not publish `DATABASE_URL`, `GEMINI_API_KEY`, or completed Supabase URLs.
+- Use only curated demo documents in `demo/docs`.
+- Keep `/rag/ask` public, but keep `/rag/ingest` and `/admin/seed-demo` protected.
+
+## 5. Smoke Test
 
 After deploy, test:
 

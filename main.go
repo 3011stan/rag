@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -38,6 +39,7 @@ func main() {
 	// Middleware
 	router.Use(logging.RequestIDMiddleware)
 	router.Use(logging.LoggingMiddleware)
+	router.Use(api.SecurityHeadersMiddleware)
 	router.Use(middleware.Recoverer)
 
 	// Health check
@@ -56,7 +58,16 @@ func main() {
 		Str("port", cfg.Port).
 		Msg("starting API server")
 
-	if err := http.ListenAndServe(cfg.Port, router); err != nil {
+	httpServer := &http.Server{
+		Addr:              cfg.Port,
+		Handler:           router,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      2 * time.Minute,
+		IdleTimeout:       60 * time.Second,
+	}
+
+	if err := httpServer.ListenAndServe(); err != nil {
 		log.Fatal().Err(err).Msg("failed to start server")
 		os.Exit(1)
 	}

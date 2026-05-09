@@ -48,11 +48,14 @@ type Config struct {
 	Port string
 
 	// Application
-	Env        string // development, production
-	AdminToken string
+	Env                 string // development, production
+	AdminToken          string
+	PublicUploadEnabled bool
+	MaxUploadBytes      int64
 }
 
 func Load() (*Config, error) {
+	env := strings.ToLower(getEnvOrDefault("ENVIRONMENT", "development"))
 	cfg := &Config{
 		DatabaseURL:         getEnvOrDefault("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/rag?sslmode=disable"),
 		AIProvider:          strings.ToLower(getEnvOrDefault("AI_PROVIDER", ProviderAuto)),
@@ -69,8 +72,10 @@ func Load() (*Config, error) {
 		OverlapTokens:       getEnvAsIntOrDefault("OVERLAP_TOKENS", 100),
 		TopK:                getEnvAsIntOrDefault("TOP_K", 5),
 		Port:                normalizePort(getEnvOrDefault("PORT", ":8080")),
-		Env:                 getEnvOrDefault("ENVIRONMENT", "development"),
+		Env:                 env,
 		AdminToken:          getEnvOrDefault("ADMIN_TOKEN", ""),
+		PublicUploadEnabled: getEnvAsBoolOrDefault("ENABLE_PUBLIC_UPLOAD", env != "production"),
+		MaxUploadBytes:      getEnvAsInt64OrDefault("MAX_UPLOAD_BYTES", 10<<20),
 	}
 
 	cfg.applyModelDefaults()
@@ -180,6 +185,34 @@ func getEnvAsIntOrDefault(key string, defaultValue int) int {
 
 	var result int
 	_, err := fmt.Sscanf(value, "%d", &result)
+	if err != nil {
+		return defaultValue
+	}
+
+	return result
+}
+
+func getEnvAsInt64OrDefault(key string, defaultValue int64) int64 {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		return defaultValue
+	}
+
+	result, err := strconv.ParseInt(value, 10, 64)
+	if err != nil || result <= 0 {
+		return defaultValue
+	}
+
+	return result
+}
+
+func getEnvAsBoolOrDefault(key string, defaultValue bool) bool {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		return defaultValue
+	}
+
+	result, err := strconv.ParseBool(value)
 	if err != nil {
 		return defaultValue
 	}

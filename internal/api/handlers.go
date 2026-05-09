@@ -25,8 +25,8 @@ import (
 const (
 	contentTypeJSON   = "application/json"
 	contentTypeHeader = "Content-Type"
-	maxFileSize       = 100 << 20 // 100MB
 	maxQuestionLength = 5000
+	maxAskBodySize    = 16 << 10
 	maxTopK           = 20
 	ingestTimeout     = 5 * time.Minute
 	askTimeout        = 2 * time.Minute
@@ -46,6 +46,8 @@ type APIServer struct {
 
 // NewAPIServer cria uma nova instância do servidor API
 func NewAPIServer(cfg *config.Config) (*APIServer, error) {
+	applyAPIDefaults(cfg)
+
 	// Criar VectorStore
 	vs, err := rag.NewPGVectorStore(cfg.DatabaseURL)
 	if err != nil {
@@ -88,6 +90,16 @@ func NewAPIServer(cfg *config.Config) (*APIServer, error) {
 		retriever: ret,
 		qaService: qaService,
 	}, nil
+}
+
+func applyAPIDefaults(cfg *config.Config) {
+	if cfg.Env == "" {
+		cfg.Env = "development"
+		cfg.PublicUploadEnabled = true
+	}
+	if cfg.MaxUploadBytes <= 0 {
+		cfg.MaxUploadBytes = 10 << 20
+	}
 }
 
 // Request/Response types
@@ -134,8 +146,18 @@ type SeedDemoResponse struct {
 // IngestHandler processa o upload e ingestão de PDFs
 func (srv *APIServer) IngestHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if !srv.cfg.PublicUploadEnabled && !srv.isAuthorizedAdminRequest(r) {
+			if srv.cfg.AdminToken == "" {
+				respondError(w, "ingest endpoint is disabled", http.StatusNotFound, nil)
+				return
+			}
+			respondError(w, "unauthorized", http.StatusUnauthorized, nil)
+			return
+		}
+
 		ctx, cancel := context.WithTimeout(r.Context(), ingestTimeout)
 		defer cancel()
+		r.Body = http.MaxBytesReader(w, r.Body, srv.cfg.MaxUploadBytes)
 
 		logger := logging.FromContext(ctx)
 
@@ -156,7 +178,7 @@ func (srv *APIServer) IngestHandler() http.HandlerFunc {
 		chunkCount, err := srv.ingestPipeline(ctx, doc, fileData, fileName)
 		if err != nil {
 			logger.Error().Err(err).Msg("ingest pipeline failed")
-			respondError(w, err.Error(), http.StatusInternalServerError, nil)
+			respondError(w, "failed to ingest document", http.StatusInternalServerError, nil)
 			return
 		}
 
@@ -183,6 +205,7 @@ func (srv *APIServer) AskHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), askTimeout)
 		defer cancel()
+		r.Body = http.MaxBytesReader(w, r.Body, maxAskBodySize)
 
 		logger := logging.FromContext(ctx)
 
@@ -208,7 +231,7 @@ func (srv *APIServer) AskHandler() http.HandlerFunc {
 		resp, err := srv.answerPipeline(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("answer pipeline failed")
-			respondError(w, err.Error(), http.StatusInternalServerError, nil)
+			respondError(w, "failed to answer question", http.StatusInternalServerError, nil)
 			return
 		}
 
@@ -239,7 +262,7 @@ func (srv *APIServer) SeedDemoHandler() http.HandlerFunc {
 		seeded, err := demoseed.Directory(ctx, demoseed.DefaultDocsDir, srv.vs, srv.embedder, srv.chunker)
 		if err != nil {
 			logging.FromContext(ctx).Error().Err(err).Msg("demo seed failed")
-			respondError(w, "failed to seed demo documents", http.StatusInternalServerError, err)
+			respondError(w, "failed to seed demo documents", http.StatusInternalServerError, nil)
 			return
 		}
 
@@ -259,7 +282,12 @@ func (srv *APIServer) SeedDemoHandler() http.HandlerFunc {
 // Helper methods
 
 func (srv *APIServer) parseAndValidateFile(r *http.Request) (*rag.Document, []byte, string, error) {
-	if err := r.ParseMultipartForm(maxFileSize); err != nil {
+	contentType := r.Header.Get(contentTypeHeader)
+	if !strings.HasPrefix(contentType, "multipart/form-data") {
+		return nil, nil, "", fmt.Errorf("content type must be multipart/form-data")
+	}
+
+	if err := r.ParseMultipartForm(srv.cfg.MaxUploadBytes); err != nil {
 		return nil, nil, "", fmt.Errorf("failed to parse form: %v", err)
 	}
 
@@ -374,11 +402,19 @@ func (srv *APIServer) ingestPipeline(ctx context.Context, doc *rag.Document, fil
 }
 
 func (srv *APIServer) parseAndValidateQuestion(r *http.Request) (*AskRequest, error) {
+	contentType := r.Header.Get(contentTypeHeader)
+	if !strings.HasPrefix(contentType, contentTypeJSON) {
+		return nil, fmt.Errorf("content type must be application/json")
+	}
+
 	var req AskRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&req); err != nil {
 		return nil, fmt.Errorf("invalid request format: %v", err)
 	}
 
+	req.Question = strings.TrimSpace(req.Question)
 	if req.Question == "" {
 		return nil, fmt.Errorf("question is required")
 	}

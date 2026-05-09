@@ -91,3 +91,28 @@ func TestLoadAcceptsPostgresDatabaseURL(t *testing.T) {
 		t.Fatal("expected database URL")
 	}
 }
+
+func TestLoadDisablesPublicUploadByDefaultInProduction(t *testing.T) {
+	t.Setenv("ENVIRONMENT", "production")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load failed: %v", err)
+	}
+	if cfg.PublicUploadEnabled {
+		t.Fatal("expected public upload disabled in production")
+	}
+}
+
+func TestLoadAllowsPublicUploadOverride(t *testing.T) {
+	t.Setenv("ENVIRONMENT", "production")
+	t.Setenv("ENABLE_PUBLIC_UPLOAD", "true")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load failed: %v", err)
+	}
+	if !cfg.PublicUploadEnabled {
+		t.Fatal("expected public upload override")
+	}
+}

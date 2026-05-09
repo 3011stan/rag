@@ -233,6 +233,12 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Remover `preDeployCommand`, que nao e suportado no free tier
   - Criar endpoint protegido `POST /admin/seed-demo`
   - Documentar `ADMIN_TOKEN` como secret manual de deploy
+- [x] **T095** - Adicionar guard rails de seguranca para demo publica
+  - Proteger `/rag/ingest` em producao com `ADMIN_TOKEN`
+  - Limitar tamanho de upload e payload JSON
+  - Adicionar headers HTTP basicos de seguranca
+  - Reduzir exposicao de erros internos em respostas 500
+  - Documentar politica de seguranca em `SECURITY.md`
 
 ---
 
@@ -287,6 +293,10 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Consultar status do deploy automaticamente
   - Rodar smoke tests de `/health`, `/admin/seed-demo` e `/rag/ask`
   - Documentar `RENDER_API_KEY`, `RENDER_SERVICE_ID` e `RENDER_SERVICE_URL` como GitHub Secrets futuros
+- [ ] **T096** - Adicionar rate limiting para API publica
+  - Definir estrategia simples por IP
+  - Proteger `/rag/ask` contra abuso de custo
+  - Documentar limites esperados da demo publica
 
 ---
 
