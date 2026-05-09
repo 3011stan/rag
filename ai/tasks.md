@@ -269,6 +269,16 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Explicar problema, arquitetura e como rodar
   - Documentar modo local com Ollama
   - Incluir curls principais e limitações conhecidas
+- [ ] **T098** - Adicionar ingestao multi-formato com Strategy Pattern
+  - Suportar upload protegido de `.pdf`, `.md` e `.txt`
+  - Criar contrato comum de loader/parser para documentos
+  - Implementar estrategias `PDFLoader`, `MarkdownLoader` e `TextLoader`
+  - Retornar um modelo canonico com texto, titulo, source type e metadados
+  - Escolher a estrategia por content-type, extensao e/ou assinatura do arquivo
+  - Manter `/rag/ingest` compativel com o upload atual de PDF
+  - Atualizar seed demo para reutilizar as estrategias de Markdown/TXT
+  - Adicionar testes de regressao para ingestao de PDF, Markdown e TXT
+  - Documentar limites, formatos aceitos e exemplos de curl/Postman
 
 ### Deploy
 - [x] **T088** - Criar banco gerenciado com pgvector
