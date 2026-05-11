@@ -13,8 +13,10 @@ import (
 
 func (srv *APIServer) IngestHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !srv.cfg.PublicUploadEnabled && !srv.isAuthorizedAdminRequest(r) {
-			if srv.cfg.AdminToken == "" {
+		if !srv.cfg.PublicUploadEnabled &&
+			!srv.isAuthorizedAdminRequest(r) &&
+			!srv.isAuthorizedTemporaryRequest(r, tempTokenScopeUpload) {
+			if srv.cfg.AdminToken == "" && srv.temporaryTokenSecret() == "" {
 				respondError(w, "ingest endpoint is disabled", http.StatusNotFound, nil)
 				return
 			}

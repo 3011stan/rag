@@ -58,6 +58,9 @@ func (f fakeVectorStore) InsertDocument(ctx context.Context, doc rag.Document) e
 func (f fakeVectorStore) GetDocumentByID(ctx context.Context, documentID string) (*rag.Document, error) {
 	return nil, nil
 }
+func (f fakeVectorStore) ListDocuments(ctx context.Context) ([]rag.DocumentSummary, error) {
+	return nil, nil
+}
 func (f fakeVectorStore) DeleteDocument(ctx context.Context, documentID string) error { return nil }
 
 func TestOllamaQAService_Answer(t *testing.T) {

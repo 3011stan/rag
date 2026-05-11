@@ -33,6 +33,7 @@ func main() {
 
 	router.Use(logging.RequestIDMiddleware)
 	router.Use(logging.LoggingMiddleware)
+	router.Use(server.CORSMiddleware)
 	router.Use(api.SecurityHeadersMiddleware)
 	router.Use(middleware.Recoverer)
 
@@ -43,6 +44,10 @@ func main() {
 
 	router.Post("/rag/ingest", server.IngestHandler())
 	router.Post("/rag/ask", server.AskHandler())
+	router.Post("/auth/temp-token", server.TemporaryTokenHandler())
+	router.Get("/documents", server.ListDocumentsHandler())
+	router.Delete("/documents/{id}", server.DeleteDocumentHandler())
+	router.Get("/debug/metadata", server.DebugMetadataHandler())
 	router.Post("/admin/seed-demo", server.SeedDemoHandler())
 
 	log.Info().

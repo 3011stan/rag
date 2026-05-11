@@ -48,34 +48,38 @@ type Config struct {
 	Port string
 
 	// Application
-	Env                 string // development, production
-	AdminToken          string
-	PublicUploadEnabled bool
-	MaxUploadBytes      int64
+	Env                  string // development, production
+	AdminToken           string
+	TemporaryTokenSecret string
+	CORSAllowedOrigins   []string
+	PublicUploadEnabled  bool
+	MaxUploadBytes       int64
 }
 
 func Load() (*Config, error) {
 	env := strings.ToLower(getEnvOrDefault("ENVIRONMENT", "development"))
 	cfg := &Config{
-		DatabaseURL:         getEnvOrDefault("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/rag?sslmode=disable"),
-		AIProvider:          strings.ToLower(getEnvOrDefault("AI_PROVIDER", ProviderAuto)),
-		EmbeddingModel:      getEnvOrDefault("EMBEDDING_MODEL", ""),
-		LLMModel:            getEnvOrDefault("LLM_MODEL", ""),
-		EmbeddingDimensions: getEnvAsIntOrDefault("EMBEDDING_DIMENSIONS", 768),
-		OpenAIAPIKey:        getEnvOrDefault("OPENAI_API_KEY", ""),
-		GeminiAPIKey:        getEnvOrDefault("GEMINI_API_KEY", ""),
-		GeminiBaseURL:       getEnvOrDefault("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta"),
-		OllamaBaseURL:       getEnvOrDefault("OLLAMA_BASE_URL", "http://localhost:11434"),
-		OllamaEmbedModel:    getEnvOrDefault("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
-		OllamaLLMModel:      getEnvOrDefault("OLLAMA_LLM_MODEL", "mistral"),
-		ChunkTokens:         getEnvAsIntOrDefault("CHUNK_TOKENS", 800),
-		OverlapTokens:       getEnvAsIntOrDefault("OVERLAP_TOKENS", 100),
-		TopK:                getEnvAsIntOrDefault("TOP_K", 5),
-		Port:                normalizePort(getEnvOrDefault("PORT", ":8080")),
-		Env:                 env,
-		AdminToken:          getEnvOrDefault("ADMIN_TOKEN", ""),
-		PublicUploadEnabled: getEnvAsBoolOrDefault("ENABLE_PUBLIC_UPLOAD", env != "production"),
-		MaxUploadBytes:      getEnvAsInt64OrDefault("MAX_UPLOAD_BYTES", 10<<20),
+		DatabaseURL:          getEnvOrDefault("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/rag?sslmode=disable"),
+		AIProvider:           strings.ToLower(getEnvOrDefault("AI_PROVIDER", ProviderAuto)),
+		EmbeddingModel:       getEnvOrDefault("EMBEDDING_MODEL", ""),
+		LLMModel:             getEnvOrDefault("LLM_MODEL", ""),
+		EmbeddingDimensions:  getEnvAsIntOrDefault("EMBEDDING_DIMENSIONS", 768),
+		OpenAIAPIKey:         getEnvOrDefault("OPENAI_API_KEY", ""),
+		GeminiAPIKey:         getEnvOrDefault("GEMINI_API_KEY", ""),
+		GeminiBaseURL:        getEnvOrDefault("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta"),
+		OllamaBaseURL:        getEnvOrDefault("OLLAMA_BASE_URL", "http://localhost:11434"),
+		OllamaEmbedModel:     getEnvOrDefault("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
+		OllamaLLMModel:       getEnvOrDefault("OLLAMA_LLM_MODEL", "mistral"),
+		ChunkTokens:          getEnvAsIntOrDefault("CHUNK_TOKENS", 800),
+		OverlapTokens:        getEnvAsIntOrDefault("OVERLAP_TOKENS", 100),
+		TopK:                 getEnvAsIntOrDefault("TOP_K", 5),
+		Port:                 normalizePort(getEnvOrDefault("PORT", ":8080")),
+		Env:                  env,
+		AdminToken:           getEnvOrDefault("ADMIN_TOKEN", ""),
+		TemporaryTokenSecret: getEnvOrDefault("TEMP_TOKEN_SECRET", ""),
+		CORSAllowedOrigins:   getEnvAsListOrDefault("CORS_ALLOWED_ORIGINS", defaultCORSAllowedOrigins(env)),
+		PublicUploadEnabled:  getEnvAsBoolOrDefault("ENABLE_PUBLIC_UPLOAD", env != "production"),
+		MaxUploadBytes:       getEnvAsInt64OrDefault("MAX_UPLOAD_BYTES", 10<<20),
 	}
 
 	cfg.applyModelDefaults()
@@ -218,6 +222,33 @@ func getEnvAsBoolOrDefault(key string, defaultValue bool) bool {
 	}
 
 	return result
+}
+
+func getEnvAsListOrDefault(key string, defaultValue []string) []string {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		return defaultValue
+	}
+
+	parts := strings.Split(value, ",")
+	result := make([]string, 0, len(parts))
+	for _, part := range parts {
+		trimmed := strings.TrimSpace(part)
+		if trimmed != "" {
+			result = append(result, trimmed)
+		}
+	}
+	return result
+}
+
+func defaultCORSAllowedOrigins(env string) []string {
+	if env == "production" {
+		return nil
+	}
+	return []string{
+		"http://localhost:3000",
+		"http://127.0.0.1:3000",
+	}
 }
 
 func normalizePort(port string) string {

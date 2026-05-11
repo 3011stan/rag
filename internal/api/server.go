@@ -24,6 +24,8 @@ const (
 	ingestTimeout     = 5 * time.Minute
 	askTimeout        = 2 * time.Minute
 	seedTimeout       = 10 * time.Minute
+	authTimeout       = 10 * time.Second
+	documentsTimeout  = 30 * time.Second
 )
 
 type APIServer struct {

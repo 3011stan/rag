@@ -116,3 +116,18 @@ func TestLoadAllowsPublicUploadOverride(t *testing.T) {
 		t.Fatal("expected public upload override")
 	}
 }
+
+func TestLoadParsesCORSAllowedOrigins(t *testing.T) {
+	t.Setenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000, https://rag-lab.vercel.app ")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load failed: %v", err)
+	}
+	if len(cfg.CORSAllowedOrigins) != 2 {
+		t.Fatalf("expected two origins, got %d", len(cfg.CORSAllowedOrigins))
+	}
+	if cfg.CORSAllowedOrigins[1] != "https://rag-lab.vercel.app" {
+		t.Fatalf("unexpected origin: %q", cfg.CORSAllowedOrigins[1])
+	}
+}

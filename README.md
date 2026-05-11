@@ -139,6 +139,8 @@ DATABASE_URL=postgres://...
 AI_PROVIDER=gemini
 GEMINI_API_KEY=...
 ADMIN_TOKEN=...
+TEMP_TOKEN_SECRET=...
+CORS_ALLOWED_ORIGINS=https://YOUR-FRONTEND.vercel.app
 ENABLE_PUBLIC_UPLOAD=false
 MAX_UPLOAD_BYTES=10485760
 GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
@@ -171,6 +173,8 @@ Render Free does not support pre-deploy commands in Blueprint services. After th
 - Public PDF upload is disabled in production with `ENABLE_PUBLIC_UPLOAD=false`.
 - Supported protected upload formats are PDF, Markdown, and plain text.
 - Protected endpoints accept `Authorization: Bearer <ADMIN_TOKEN>`.
+- Temporary tokens are stateless, signed, valid for 30 minutes, and can only upload and list documents.
+- Document deletion, debug metadata, and demo seeding require the real `ADMIN_TOKEN`.
 - Uploads are limited by `MAX_UPLOAD_BYTES`, defaulting to 10 MB.
 - JSON question payloads are limited and must use `Content-Type: application/json`.
 - Basic security headers are set on every response.

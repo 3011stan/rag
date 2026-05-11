@@ -16,6 +16,7 @@ type VectorStore interface {
 	GetChunksByDocumentID(ctx context.Context, documentID string) ([]Chunk, error)
 	InsertDocument(ctx context.Context, doc Document) error
 	GetDocumentByID(ctx context.Context, documentID string) (*Document, error)
+	ListDocuments(ctx context.Context) ([]DocumentSummary, error)
 	DeleteDocument(ctx context.Context, documentID string) error
 }
 

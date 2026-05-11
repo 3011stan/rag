@@ -114,6 +114,8 @@ You must manually provide secret values:
 DATABASE_URL=postgresql://postgres:<YOUR-PASSWORD>@db.glkogcmzzyazhoefynui.supabase.co:5432/postgres?sslmode=require
 GEMINI_API_KEY=<YOUR-GEMINI-API-KEY>
 ADMIN_TOKEN=<LONG-RANDOM-SECRET>
+TEMP_TOKEN_SECRET=<LONG-RANDOM-SECRET>
+CORS_ALLOWED_ORIGINS=https://YOUR-FRONTEND.vercel.app
 ```
 
 For Supabase on Render, replace the direct `DATABASE_URL` above with the Supabase Session pooler URL from Project Settings > Database > Connection string > Session pooler.
@@ -135,9 +137,13 @@ For the public demo:
 
 - Keep `ENABLE_PUBLIC_UPLOAD=false`.
 - Keep `ADMIN_TOKEN` secret and rotate it if exposed.
+- Keep `TEMP_TOKEN_SECRET` secret and rotate it if exposed.
+- Set `CORS_ALLOWED_ORIGINS` to the deployed frontend origin. Include `http://localhost:3000` only when intentionally testing a local frontend against production.
 - Do not publish `DATABASE_URL`, `GEMINI_API_KEY`, or completed Supabase URLs.
 - Use only curated demo documents in `demo/docs`.
 - Keep `/rag/ask` public, but keep `/rag/ingest` and `/admin/seed-demo` protected.
+- Temporary tokens may access upload and document listing only.
+- Document deletion, debug metadata, and demo seeding require the real admin token.
 
 ## 5. Smoke Test
 

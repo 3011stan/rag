@@ -1,5 +1,7 @@
 package rag
 
+import "time"
+
 type Chunk struct {
 	ID         string
 	DocumentID string
@@ -17,4 +19,14 @@ type Document struct {
 	Title    string
 	Checksum string
 	Metadata map[string]interface{}
+}
+
+type DocumentSummary struct {
+	ID         string
+	Source     string
+	Title      string
+	Checksum   string
+	Metadata   map[string]interface{}
+	ChunkCount int
+	CreatedAt  time.Time
 }

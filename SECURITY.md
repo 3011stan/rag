@@ -5,8 +5,10 @@ This project is a portfolio RAG API, but it is deployed publicly and should be t
 ## Current Guard Rails
 
 - Public upload is disabled in production by default.
-- `POST /rag/ingest` requires `ADMIN_TOKEN` when `ENABLE_PUBLIC_UPLOAD=false`.
+- `POST /rag/ingest` requires either `ADMIN_TOKEN` or a scoped temporary token when `ENABLE_PUBLIC_UPLOAD=false`.
 - Protected ingestion accepts PDF, Markdown, and plain text documents.
+- Temporary tokens are stateless, signed, valid for 30 minutes, and limited to upload plus document listing.
+- Document deletion and debug metadata require `ADMIN_TOKEN`.
 - `POST /admin/seed-demo` requires `ADMIN_TOKEN`.
 - Upload size is capped by `MAX_UPLOAD_BYTES`.
 - Question request bodies are capped and must be JSON.
@@ -22,6 +24,7 @@ Never commit:
 - `DATABASE_URL`
 - `GEMINI_API_KEY`
 - `ADMIN_TOKEN`
+- `TEMP_TOKEN_SECRET`
 - provider tokens or database passwords
 
 Production secrets belong in the hosting provider dashboard. GitHub Secrets should only be used when GitHub Actions needs the value.
