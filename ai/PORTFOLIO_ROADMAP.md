@@ -463,6 +463,7 @@ Manter poucos documentos:
 - `ai/STATUS.md`: estado operacional atual.
 - `ai/plan-rag.md`: plano original, mantido como historico.
 - `ai/README.md`: referencia atual do MVP, a ser revisada depois.
+- `ai/rag-content-guidelines.md`: diretrizes de curadoria e alimentacao do corpus RAG.
 
 Evitar novos markdowns soltos para cada descoberta. Quando houver nova decisao, atualizar este roadmap, `tasks.md` ou `STATUS.md`.
 
@@ -475,18 +476,32 @@ Objetivo: usar o historico Git como narrativa de evolucao do projeto, com commit
 ### Branches
 
 - `main`: estado estavel e demonstravel.
-- `feature/<escopo-curto>`: novas funcionalidades ou refatoracoes.
-- `fix/<escopo-curto>`: correcoes de bug.
-- `docs/<escopo-curto>`: documentacao.
-- `chore/<escopo-curto>`: tarefas de manutencao, tooling e organizacao.
+- Branches devem sempre nascer de `main`.
+- Cada branch deve estar vinculada a uma tarefa registrada em `ai/tasks.md`.
+- O identificador da tarefa deve aparecer no nome da branch para rastreabilidade futura.
+- `feature/T###-<escopo-curto>`: novas funcionalidades ou refatoracoes.
+- `fix/T###-<escopo-curto>`: correcoes de bug.
+- `docs/T###-<escopo-curto>`: documentacao.
+- `chore/T###-<escopo-curto>`: tarefas de manutencao, tooling e organizacao.
 
 Exemplos:
 
-- `feature/rag-pipeline`
-- `feature/eval-harness`
-- `fix/pdf-document-id`
-- `docs/portfolio-readme`
-- `chore/makefile`
+- `feature/T077-rag-pipeline`
+- `feature/T101-eval-harness`
+- `fix/T102-pdf-document-id`
+- `docs/T099-rag-content-guidelines`
+- `chore/T100-makefile`
+
+Fluxo esperado para cada mudanca:
+
+1. Registrar ou escolher a tarefa em `ai/tasks.md`.
+2. Atualizar a branch local `main`.
+3. Criar a branch a partir de `main`.
+4. Implementar apenas o escopo daquela tarefa.
+5. Validar localmente.
+6. Fazer commit pequeno usando Conventional Commits.
+7. Fazer push da branch.
+8. Abrir PR ou mergear conforme o momento do projeto.
 
 ### Convencao De Commits
 

@@ -279,6 +279,34 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Atualizar seed demo para reutilizar as estrategias de Markdown/TXT
   - Adicionar testes de regressao para ingestao de PDF, Markdown e TXT
   - Documentar limites, formatos aceitos e exemplos de curl/Postman
+- [x] **T099** - Documentar estrategia de alimentacao de conteudo do RAG
+  - Limpar `ai/increment-plan.md` removendo emojis, separadores visuais e tom de brainstorming
+  - Preservar o conceito de corpus curado em camadas
+  - Registrar o principio de aprender sistemas de criacao, nao dicas genericas de creator
+  - Definir categorias iniciais: creator systems, storytelling, technical communication, platform dynamics e self knowledge
+  - Definir processo manual de curadoria e alimentacao do RAG
+  - Definir primeiro metadata schema para documentos ingeriveis
+  - Registrar relacao entre StanOS, Obsidian e RAG
+- [ ] **T100** - Implementar suporte backend para metadata e filtros de retrieval
+  - Aceitar metadata estruturado na ingestao
+  - Validar campos permitidos do metadata schema
+  - Implementar metadata preferences com soft boost no retrieval
+  - Evitar hard filters como estrategia padrao de retrieval
+  - Permitir preferencias opcionais em `/rag/ask`
+  - Retornar metadata relevante nas sources
+  - Adicionar testes para boost por layer, categoria e plataforma
+  - Registrar layered retrieval como evolucao futura, se houver necessidade de controlar composicao do contexto
+- [ ] **T101** - Criar experiencia frontend/admin para corpus do RAG
+  - Listar documentos persistidos no RAG
+  - Exibir metadata, chunks e sources
+  - Permitir pergunta com filtros opcionais
+  - Permitir ingestao protegida com metadata
+  - Renderizar respostas em Markdown
+- [ ] **T102** - Adotar fluxo de branches vinculadas a tarefas
+  - Criar branches sempre a partir de `main`
+  - Usar padrao `<tipo>/T###-<escopo-curto>`
+  - Garantir que toda branch tenha tarefa registrada em `ai/tasks.md`
+  - Documentar validacoes esperadas antes de commit/push
 
 ### Deploy
 - [x] **T088** - Criar banco gerenciado com pgvector
