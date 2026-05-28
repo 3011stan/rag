@@ -287,14 +287,10 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Definir processo manual de curadoria e alimentacao do RAG
   - Definir primeiro metadata schema para documentos ingeriveis
   - Registrar relacao entre StanOS, Obsidian e RAG
-- [ ] **T100** - Implementar suporte backend para metadata e filtros de retrieval
-  - Aceitar metadata estruturado na ingestao
-  - Validar campos permitidos do metadata schema
-  - Implementar metadata preferences com soft boost no retrieval
+- [ ] **T100** - Epic: Metadata e retrieval preferences
+  - Coordenar entregaveis incrementais para metadata estruturado e retrieval com soft boost
+  - Manter compatibilidade com documentos existentes sem os novos campos de metadata
   - Evitar hard filters como estrategia padrao de retrieval
-  - Permitir preferencias opcionais em `/rag/ask`
-  - Retornar metadata relevante nas sources
-  - Adicionar testes para boost por layer, categoria e plataforma
   - Registrar layered retrieval como evolucao futura, se houver necessidade de controlar composicao do contexto
 - [ ] **T101** - Criar experiencia frontend/admin para corpus do RAG
   - Listar documentos persistidos no RAG
@@ -307,6 +303,40 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Usar padrao `<tipo>/T###-<escopo-curto>`
   - Garantir que toda branch tenha tarefa registrada em `ai/tasks.md`
   - Documentar validacoes esperadas antes de commit/push
+- [ ] **T103** - Aceitar metadata estruturado na ingestao
+  - Branch planejada: `feature/T103-metadata-ingestion`
+  - Aceitar metadata opcional em `/rag/ingest`
+  - Validar campos permitidos do metadata schema
+  - Mesclar metadata enviada com metadata basico gerado pelos loaders
+  - Manter upload atual funcionando sem metadata
+  - Adicionar testes para ingestao com e sem metadata
+- [ ] **T104** - Adicionar contrato de preferences no `/rag/ask`
+  - Branch planejada: `feature/T104-ask-preferences`
+  - Adicionar campo opcional `preferences` no request de pergunta
+  - Validar preferences por layer, category, platform e preferred_layers
+  - Manter contrato atual de `/rag/ask` funcionando sem preferences
+  - Encaminhar preferences para o pipeline/retriever sem aplicar hard filter
+  - Adicionar testes de contrato e validacao
+- [ ] **T105** - Implementar soft boost de retrieval por metadata
+  - Branch planejada: `feature/T105-soft-boost-retrieval`
+  - Buscar candidatos semanticamente relevantes em quantidade maior que `top_k`
+  - Aplicar boost quando metadata bater com preferences
+  - Reordenar resultados por score sem excluir chunks relevantes de outras camadas
+  - Adicionar testes para boost por layer, category e platform
+  - Documentar pesos iniciais e trade-offs
+- [ ] **T106** - Retornar sources enriquecidas com metadata
+  - Branch planejada: `feature/T106-enriched-sources`
+  - Incluir metadata relevante nas sources de `/rag/ask`
+  - Incluir titulo/source do documento quando disponivel
+  - Preservar campos atuais de source para compatibilidade
+  - Adicionar testes de resposta
+- [ ] **T107** - Fazer backfill manual de metadata dos documentos existentes
+  - Branch planejada: `chore/T107-metadata-backfill`
+  - Listar documentos persistidos e seus chunks representativos
+  - Definir metadata manual para o corpus atual
+  - Atualizar `rag_documents.metadata`
+  - Propagar metadata relevante para `rag_chunks.metadata` ou reingerir documentos quando mais seguro
+  - Validar que documentos antigos continuam respondendo antes e depois do backfill
 
 ### Deploy
 - [x] **T088** - Criar banco gerenciado com pgvector

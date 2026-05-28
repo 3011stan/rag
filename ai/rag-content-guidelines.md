@@ -214,6 +214,15 @@ Every ingested document should have metadata.
 
 The metadata can live in Markdown frontmatter in StanOS/Obsidian and later be sent to the RAG backend during ingestion.
 
+Metadata fields must remain backward-compatible. Existing documents may have only basic loader metadata such as filename, content type, source type, page count, or checksum. The RAG must continue to retrieve those documents even when the new schema fields are missing.
+
+Missing metadata should mean:
+
+- No soft boost for that field.
+- No ingestion failure.
+- No retrieval failure.
+- No exclusion from normal semantic search.
+
 Initial schema:
 
 ```yaml
@@ -255,6 +264,36 @@ Recommended fields:
 - `tags`: focused tags that help retrieval and review.
 
 Avoid over-modeling the schema too early. Add fields only when they support retrieval, curation, evaluation, or automation.
+
+## Existing Document Metadata Backfill
+
+The current RAG database already persists document records and chunk records:
+
+```txt
+rag_documents = document identity, source, title, checksum, metadata, created_at
+rag_chunks = chunk content, token count, metadata, embedding, created_at
+```
+
+The system does not persist the original uploaded file as a binary artifact, but it does persist enough document and chunk information to list, inspect, retrieve, and enrich existing records.
+
+Existing documents should not stay as "flat-only" corpus entries. Because the current corpus is small, the preferred approach is manual metadata backfill.
+
+Manual backfill process:
+
+1. List existing documents.
+2. Inspect each title, source, metadata, and representative chunks.
+3. Assign `layer`, `category`, `platform`, `source_quality`, `visibility`, and useful tags.
+4. Update `rag_documents.metadata`.
+5. Propagate relevant metadata to the document chunks, or re-ingest the source with metadata when safer.
+6. Ask validation questions and confirm the enriched documents receive appropriate soft boosts.
+
+Backward compatibility rule:
+
+```txt
+Legacy documents must continue to work before and after metadata backfill.
+```
+
+Backfill should improve retrieval behavior, not become a prerequisite for the API to work.
 
 ## Document Preparation Process
 
