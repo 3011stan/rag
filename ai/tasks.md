@@ -290,6 +290,8 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
 - [ ] **T100** - Implementar suporte backend para metadata e filtros de retrieval
   - Aceitar metadata estruturado na ingestao
   - Validar campos permitidos do metadata schema
+  - Manter compatibilidade com documentos existentes sem os novos campos de metadata
+  - Planejar backfill manual de metadata para os documentos ja persistidos
   - Implementar metadata preferences com soft boost no retrieval
   - Evitar hard filters como estrategia padrao de retrieval
   - Permitir preferencias opcionais em `/rag/ask`
