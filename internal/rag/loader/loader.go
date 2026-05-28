@@ -19,6 +19,7 @@ type Source struct {
 	Name        string
 	ContentType string
 	Data        []byte
+	Metadata    map[string]interface{}
 }
 
 type LoadedDocument struct {

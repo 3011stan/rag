@@ -303,7 +303,7 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Usar padrao `<tipo>/T###-<escopo-curto>`
   - Garantir que toda branch tenha tarefa registrada em `ai/tasks.md`
   - Documentar validacoes esperadas antes de commit/push
-- [ ] **T103** - Aceitar metadata estruturado na ingestao
+- [x] **T103** - Aceitar metadata estruturado na ingestao
   - Branch planejada: `feature/T103-metadata-ingestion`
   - Aceitar metadata opcional em `/rag/ingest`
   - Validar campos permitidos do metadata schema
