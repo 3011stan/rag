@@ -89,14 +89,26 @@ Future `/rag/ask` requests may send preferences such as:
   "question": "How should I structure a technical reel?",
   "top_k": 5,
   "preferences": {
-    "platform": "reels",
-    "category": "storytelling",
-    "preferred_layers": ["platform_specific", "self_knowledge"]
+    "layers": ["platform_specific", "self_knowledge"],
+    "categories": ["storytelling"],
+    "platforms": ["reels"],
+    "source_kinds": ["note", "article"],
+    "source_quality": ["high"]
   }
 }
 ```
 
 The backend should prefer matching chunks without excluding semantically useful chunks from other layers.
+
+The ask preferences contract accepts plural array fields only:
+
+- `layers`
+- `categories`
+- `platforms`
+- `source_kinds`
+- `source_quality`
+
+`visibility` is intentionally not an ask preference. It should remain a corpus/access decision rather than a ranking hint.
 
 ## Metadata in Answer Sources
 

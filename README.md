@@ -118,6 +118,16 @@ curl -X POST http://localhost:8080/rag/ask \
   -d '{"question":"What is the document about?","top_k":5}'
 ```
 
+Ask with optional retrieval preferences:
+
+```bash
+curl -X POST http://localhost:8080/rag/ask \
+  -H 'Content-Type: application/json' \
+  -d '{"question":"How should I structure a technical reel?","top_k":5,"preferences":{"layers":["platform_specific","self_knowledge"],"categories":["storytelling"],"platforms":["reels"],"source_kinds":["note","article"],"source_quality":["high"]}}'
+```
+
+Preferences are validated as metadata hints. They do not apply hard filters.
+
 Answer sources include sanitized metadata when available:
 
 ```json

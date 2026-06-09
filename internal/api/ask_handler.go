@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/stan/Projects/studies/rag/internal/logging"
+	ragpipeline "github.com/stan/Projects/studies/rag/internal/rag/pipeline"
 )
 
 func (srv *APIServer) AskHandler() http.HandlerFunc {
@@ -29,9 +30,13 @@ func (srv *APIServer) AskHandler() http.HandlerFunc {
 		logger.Info().
 			Str("question_preview", preview).
 			Int("top_k", req.TopK).
+			Bool("has_preferences", req.Preferences != nil).
 			Msg("processing question")
 
-		result, err := srv.pipeline.Ask(ctx, req.Question, req.TopK)
+		result, err := srv.pipeline.Ask(ctx, req.Question, ragpipeline.AskOptions{
+			TopK:        req.TopK,
+			Preferences: toPipelinePreferences(req.Preferences),
+		})
 		if err != nil {
 			logger.Error().Err(err).Msg("answer pipeline failed")
 			respondError(w, "failed to answer question", http.StatusInternalServerError, nil)

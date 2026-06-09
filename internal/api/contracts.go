@@ -8,8 +8,17 @@ type IngestResponse struct {
 }
 
 type AskRequest struct {
-	Question string `json:"question"`
-	TopK     int    `json:"top_k,omitempty"`
+	Question    string          `json:"question"`
+	TopK        int             `json:"top_k,omitempty"`
+	Preferences *AskPreferences `json:"preferences,omitempty"`
+}
+
+type AskPreferences struct {
+	Layers        []string `json:"layers,omitempty"`
+	Categories    []string `json:"categories,omitempty"`
+	Platforms     []string `json:"platforms,omitempty"`
+	SourceKinds   []string `json:"source_kinds,omitempty"`
+	SourceQuality []string `json:"source_quality,omitempty"`
 }
 
 type SourceInfo struct {
