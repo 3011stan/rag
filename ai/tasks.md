@@ -306,6 +306,23 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Mostrar mensagem curta como "semantic match + context preferences" ou equivalente
   - Permitir comparar pergunta com e sem preferences em uma experiencia simples de portfolio
   - Usar linguagem de produto, nao linguagem interna de regra de negocio
+- [x] **T109** - Documentar contrato operacional de metadata e preferences
+  - Branch planejada: `docs/T109-metadata-preferences-contract`
+  - Centralizar em `docs/metadata.md` todos os valores aceitos para `type`, `layer`, `category`, `platform`, `source_kind`, `source_quality` e `visibility`
+  - Explicar a diferenca entre metadata de ingestao e preferences de pergunta
+  - Documentar quais campos podem ser usados em `/rag/ask.preferences`
+  - Registrar exemplos validos e invalidos de payload
+  - Garantir que a documentacao use exatamente os mesmos nomes aceitos pelo backend
+  - Servir como referencia para frontend, Postman e futuras automacoes de ingestao
+- [ ] **T110** - Criar processo de avaliacao do corpus RAG
+  - Branch planejada: `docs/T110-rag-corpus-evaluation-process`
+  - Definir um conjunto pequeno de perguntas de avaliacao antes de ampliar o corpus
+  - Registrar expected sources ou criterios de fonte esperada por pergunta
+  - Registrar avaliacao humana de resposta: utilidade, fidelidade ao contexto, completude e acionabilidade
+  - Comparar resultados antes/depois de novas ingestoes relevantes
+  - Medir sinais simples: source hit rate, answer usefulness score, groundedness e regressions observadas
+  - Documentar quando uma nova fonte melhorou, piorou ou apenas aumentou ruido
+  - Preparar base para futuro eval harness automatizado
 - [ ] **T102** - Adotar fluxo de branches vinculadas a tarefas
   - Criar branches sempre a partir de `main`
   - Usar padrao `<tipo>/T###-<escopo-curto>`
@@ -341,8 +358,13 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Nao expor campos internos como `checksum`
   - Preservar campos atuais de source para compatibilidade
   - Adicionar testes de resposta
-- [ ] **T107** - Fazer backfill manual de metadata dos documentos existentes
+- [~] **T107** - Fazer backfill manual de metadata dos documentos existentes
   - Branch planejada: `chore/T107-metadata-backfill`
+  - Status: declinada por enquanto
+  - Motivo: corpus atual tem poucos documentos e sera substituido/alimentado com materiais mais relevantes
+  - Decisao: nao criar ferramenta nem script de backfill agora
+  - Alternativa: novos documentos devem ser ingeridos diretamente com metadata curada
+  - Reavaliar se o corpus crescer com documentos antigos sem metadata
   - Listar documentos persistidos e seus chunks representativos
   - Definir metadata manual para o corpus atual
   - Atualizar `rag_documents.metadata`

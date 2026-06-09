@@ -9,6 +9,76 @@ Metadata connects curated knowledge in StanOS/Obsidian with retrieval behavior i
 - Keep ingestion backward-compatible.
 - Prepare the corpus for future retrieval preferences and soft boost ranking.
 
+## Operational Contract
+
+Use this section as the source of truth for Postman requests, frontend controls, and ingestion automation.
+
+### Accepted Metadata Enums
+
+| Field | Accepted values | Ingestion metadata | Ask preferences |
+| --- | --- | --- | --- |
+| `type` | `knowledge_asset`, `editorial_decision`, `script`, `workflow`, `reference` | yes | no |
+| `layer` | `foundations`, `platform_specific`, `self_knowledge`, `editorial_decisions` | yes | yes, as `layers` |
+| `category` | `creator_systems`, `storytelling`, `technical_communication`, `platform_dynamics`, `self_knowledge`, `editorial_decisions` | yes | yes, as `categories` |
+| `platform` | `general`, `youtube`, `reels`, `tiktok`, `linkedin`, `medium`, `podcast` | yes | yes, as `platforms` |
+| `source_kind` | `article`, `transcript`, `note`, `script`, `decision`, `pdf_extract`, `workflow`, `reference` | yes | yes, as `source_kinds` |
+| `source_quality` | `high`, `medium`, `low` | yes | yes, as `source_quality` |
+| `visibility` | `private`, `portfolio_demo`, `public` | yes | no |
+
+### Ingestion Metadata vs Ask Preferences
+
+Ingestion metadata describes a document when it enters the corpus. These fields are singular because each ingested document receives one curated value per field:
+
+```json
+{
+  "type": "knowledge_asset",
+  "layer": "foundations",
+  "category": "technical_communication",
+  "platform": "general",
+  "source_kind": "note",
+  "source_quality": "high",
+  "visibility": "private"
+}
+```
+
+Ask preferences describe what the current question would like to emphasize. Most fields are plural arrays because a question can prefer more than one corpus area:
+
+```json
+{
+  "preferences": {
+    "layers": ["foundations"],
+    "categories": ["technical_communication"],
+    "platforms": ["general"],
+    "source_kinds": ["note"],
+    "source_quality": ["high"]
+  }
+}
+```
+
+`source_quality` keeps the same field name in preferences, but its value is still an array.
+
+### Fields Not Accepted In Ask Preferences
+
+These fields are valid or useful elsewhere, but are not accepted in `/rag/ask.preferences`:
+
+- `type`
+- `visibility`
+- `evergreen`
+- `source_url`
+- `author`
+- `created`
+- `captured_at`
+- `tags`
+- `filename`
+- `content_type`
+- `source_type`
+- `pages`
+- `checksum`
+
+`visibility` is a corpus/access decision, not a ranking hint.
+
+`tags` may become a future preference candidate, but it is intentionally excluded for now to avoid noisy ranking behavior.
+
 ## Reserved Technical Fields
 
 These fields belong to the system/loaders and must not be accepted from user-provided curation metadata:
@@ -68,7 +138,7 @@ Missing curation metadata means:
 - No retrieval failure.
 - No exclusion from semantic search.
 
-Existing documents should later receive manual metadata backfill because the current corpus is small.
+Existing records can remain available even when they only have loader metadata. New relevant documents should be ingested with curated metadata from the start.
 
 ## Example Request
 
@@ -77,6 +147,31 @@ curl -X POST http://localhost:8080/rag/ingest \
   -F 'file=@/path/to/notes.md;type=text/markdown' \
   -F 'metadata={"type":"knowledge_asset","layer":"foundations","category":"storytelling","platform":"general","source_kind":"article","source_quality":"high","visibility":"private","tags":["narrative","retention"]}'
 ```
+
+Invalid ingestion metadata examples:
+
+```json
+{
+  "filename": "manual.md"
+}
+```
+
+Invalid because `filename` is reserved for loaders.
+
+```json
+{
+  "platform": "instagram"
+}
+```
+
+Invalid because `instagram` is not an accepted `platform` value. Use a supported platform such as `reels`, `tiktok`, `youtube`, or `linkedin`.
+
+Expected behavior:
+
+- Valid ingestion metadata: `200`.
+- Reserved metadata field: `400`.
+- Unknown metadata field: `400`.
+- Invalid enum value: `400`.
 
 ## Future Retrieval Use
 
@@ -109,6 +204,45 @@ The ask preferences contract accepts plural array fields only:
 - `source_quality`
 
 `visibility` is intentionally not an ask preference. It should remain a corpus/access decision rather than a ranking hint.
+
+Invalid ask preference examples:
+
+```json
+{
+  "preferences": {
+    "platform": "reels"
+  }
+}
+```
+
+Invalid because ask preferences use `platforms` as an array.
+
+```json
+{
+  "preferences": {
+    "visibility": ["public"]
+  }
+}
+```
+
+Invalid because `visibility` is not accepted in ask preferences.
+
+```json
+{
+  "preferences": {
+    "layers": ["platform"]
+  }
+}
+```
+
+Invalid because `platform` is not an accepted `layer` value.
+
+Expected behavior:
+
+- Request without preferences: `200`.
+- Request with valid preferences: `200`.
+- Request with unknown preference field: `400`.
+- Request with invalid preference value: `400`.
 
 ## Soft Boost Retrieval
 
