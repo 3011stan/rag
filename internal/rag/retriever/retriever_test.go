@@ -134,6 +134,28 @@ func TestCandidatePoolSizeIsCapped(t *testing.T) {
 	}
 }
 
+func TestRetrieveCapsTopKBeforeCandidatePool(t *testing.T) {
+	chunks := make([]rag.Chunk, 60)
+	for i := range chunks {
+		chunks[i] = rag.Chunk{ID: "chunk", Score: float64(i) / 100}
+	}
+	store := &fakeStore{chunks: chunks}
+	ret := NewRetriever(store, fakeEmbedder{}, 5)
+
+	results, err := ret.RetrieveWithPreferences(context.Background(), "question", 50, &Preferences{
+		Layers: []string{"foundations"},
+	})
+	if err != nil {
+		t.Fatalf("expected retrieval to succeed: %v", err)
+	}
+	if store.searchedK != maxCandidateK {
+		t.Fatalf("expected candidate pool cap %d, got %d", maxCandidateK, store.searchedK)
+	}
+	if len(results) != maxTopK {
+		t.Fatalf("expected normalized topK %d, got %d", maxTopK, len(results))
+	}
+}
+
 func TestMetadataBoostAddsMultipleMatches(t *testing.T) {
 	boost := metadataBoost(map[string]interface{}{
 		"layer":          "foundations",

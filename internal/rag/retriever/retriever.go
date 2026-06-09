@@ -10,6 +10,7 @@ import (
 )
 
 const (
+	maxTopK             = 20
 	candidateMultiplier = 4
 	maxCandidateK       = 40
 )
@@ -51,9 +52,7 @@ func (r *Retriever) RetrieveWithPreferences(ctx context.Context, question string
 }
 
 func (r *Retriever) retrieve(ctx context.Context, question string, topK int, preferences *Preferences) ([]Result, error) {
-	if topK <= 0 {
-		topK = r.defaultTopK
-	}
+	topK = r.normalizeTopK(topK)
 
 	embedding, err := r.embedder.EmbedSingle(ctx, question)
 	if err != nil {
@@ -89,6 +88,16 @@ func (r *Retriever) retrieve(ctx context.Context, question string, topK int, pre
 	}
 
 	return results, nil
+}
+
+func (r *Retriever) normalizeTopK(topK int) int {
+	if topK <= 0 {
+		topK = r.defaultTopK
+	}
+	if topK > maxTopK {
+		return maxTopK
+	}
+	return topK
 }
 
 func candidatePoolSize(topK int) int {

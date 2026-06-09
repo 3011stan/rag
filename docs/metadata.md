@@ -134,6 +134,7 @@ The vector search score remains the public source score. Adjusted scores are int
 Initial candidate pool:
 
 - `candidate_k = top_k * 4`
+- maximum `top_k = 20`
 - maximum `candidate_k = 40`
 
 These values are intentionally experimental and should be revisited after evaluation against a small question set.

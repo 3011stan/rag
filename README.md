@@ -127,6 +127,7 @@ curl -X POST http://localhost:8080/rag/ask \
 ```
 
 Preferences are validated as metadata hints. They do not apply hard filters. When present, they may softly influence retrieval ranking while still allowing semantically useful chunks from other metadata groups.
+The retriever caps `top_k` at `20` and the preference candidate pool at `40`.
 
 Answer sources include sanitized metadata when available:
 
