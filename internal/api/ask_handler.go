@@ -48,6 +48,7 @@ func (srv *APIServer) AskHandler() http.HandlerFunc {
 				ChunkIndex: source.ChunkIndex,
 				Score:      source.Score,
 				Preview:    source.Preview,
+				Metadata:   sanitizeSourceMetadata(source.Metadata),
 			}
 		}
 

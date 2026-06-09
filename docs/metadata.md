@@ -97,3 +97,29 @@ Future `/rag/ask` requests may send preferences such as:
 ```
 
 The backend should prefer matching chunks without excluding semantically useful chunks from other layers.
+
+## Metadata in Answer Sources
+
+`POST /rag/ask` may return metadata in each source item.
+
+Only a sanitized allowlist is exposed publicly:
+
+- `type`
+- `layer`
+- `category`
+- `platform`
+- `source_kind`
+- `source_quality`
+- `evergreen`
+- `visibility`
+- `source_url`
+- `author`
+- `created`
+- `captured_at`
+- `tags`
+- `source_type`
+- `content_type`
+- `filename`
+- `pages`
+
+Fields outside this allowlist, such as `checksum`, must not be returned by the public ask response.

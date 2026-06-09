@@ -40,6 +40,9 @@ Temporary tokens must not allow:
 - Metadata should initially be used as preferences for soft boosting.
 - Relevant chunks from other layers should still be able to cooperate in an answer.
 - Layered retrieval is a future option if context composition needs stronger control.
+- `POST /rag/ask` may return source metadata when available.
+- Source metadata returned by public responses must be sanitized through an allowlist.
+- Public source metadata must not expose internal fields such as `checksum`.
 
 ## Public Demo Safety
 

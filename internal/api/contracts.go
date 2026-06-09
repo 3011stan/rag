@@ -13,10 +13,11 @@ type AskRequest struct {
 }
 
 type SourceInfo struct {
-	DocumentID string  `json:"document_id"`
-	ChunkIndex int     `json:"chunk_index"`
-	Score      float64 `json:"score"`
-	Preview    string  `json:"preview"`
+	DocumentID string                 `json:"document_id"`
+	ChunkIndex int                    `json:"chunk_index"`
+	Score      float64                `json:"score"`
+	Preview    string                 `json:"preview"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
 }
 
 type AskResponse struct {

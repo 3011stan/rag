@@ -37,6 +37,7 @@ type Source struct {
 	ChunkIndex int
 	Score      float64
 	Preview    string
+	Metadata   map[string]interface{}
 }
 
 var technicalMetadataFields = map[string]struct{}{
@@ -180,6 +181,7 @@ func (p *Pipeline) Ask(ctx context.Context, question string, topK int) (*AnswerR
 			ChunkIndex: result.Chunk.ChunkIndex,
 			Score:      result.Score,
 			Preview:    truncate(result.Chunk.Content, 100),
+			Metadata:   result.Chunk.Metadata,
 		}
 	}
 

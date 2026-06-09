@@ -324,10 +324,11 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Reordenar resultados por score sem excluir chunks relevantes de outras camadas
   - Adicionar testes para boost por layer, category e platform
   - Documentar pesos iniciais e trade-offs
-- [ ] **T106** - Retornar sources enriquecidas com metadata
+- [x] **T106** - Retornar sources enriquecidas com metadata
   - Branch planejada: `feature/T106-enriched-sources`
   - Incluir metadata relevante nas sources de `/rag/ask`
-  - Incluir titulo/source do documento quando disponivel
+  - Retornar apenas metadata sanitizada por allowlist publica
+  - Nao expor campos internos como `checksum`
   - Preservar campos atuais de source para compatibilidade
   - Adicionar testes de resposta
 - [ ] **T107** - Fazer backfill manual de metadata dos documentos existentes
