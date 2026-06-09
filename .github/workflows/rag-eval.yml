@@ -1,0 +1,101 @@
+name: RAG Retrieval Eval
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  retrieval-eval:
+    name: Deterministic retrieval eval
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: rag_eval
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d rag_eval"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/rag_eval?sslmode=disable
+      ENVIRONMENT: test
+      AI_PROVIDER: test
+      EMBEDDING_DIMENSIONS: "256"
+      ADMIN_TOKEN: test-admin-token
+      ENABLE_PUBLIC_UPLOAD: "false"
+      TOP_K: "5"
+      CHUNK_TOKENS: "120"
+      OVERLAP_TOKENS: "20"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build API
+        run: go build -o rag-app .
+
+      - name: Start API
+        run: |
+          ./rag-app > api.log 2>&1 &
+          echo $! > api.pid
+
+      - name: Wait for API
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8080/health >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat api.log
+          exit 1
+
+      - name: Ingest eval fixtures
+        run: |
+          curl -fsS -X POST http://localhost:8080/rag/ingest \
+            -H "Authorization: Bearer $ADMIN_TOKEN" \
+            -F "file=@eval/fixtures/t110-foundations.md;type=text/markdown" \
+            -F 'metadata={"type":"knowledge_asset","layer":"foundations","category":"technical_communication","platform":"general","source_kind":"note","source_quality":"high","visibility":"private","tags":["eval","t110","foundations"]}'
+
+          curl -fsS -X POST http://localhost:8080/rag/ingest \
+            -H "Authorization: Bearer $ADMIN_TOKEN" \
+            -F "file=@eval/fixtures/t110-reels.md;type=text/markdown" \
+            -F 'metadata={"type":"knowledge_asset","layer":"platform_specific","category":"storytelling","platform":"reels","source_kind":"note","source_quality":"high","visibility":"private","tags":["eval","t110","reels"]}'
+
+          curl -fsS -X POST http://localhost:8080/rag/ingest \
+            -H "Authorization: Bearer $ADMIN_TOKEN" \
+            -F "file=@eval/fixtures/t110-podcast.md;type=text/markdown" \
+            -F 'metadata={"type":"knowledge_asset","layer":"platform_specific","category":"storytelling","platform":"podcast","source_kind":"note","source_quality":"high","visibility":"private","tags":["eval","t110","podcast"]}'
+
+          curl -fsS -X POST http://localhost:8080/rag/ingest \
+            -H "Authorization: Bearer $ADMIN_TOKEN" \
+            -F "file=@eval/fixtures/t110-platform-dynamics.md;type=text/markdown" \
+            -F 'metadata={"type":"knowledge_asset","layer":"platform_specific","category":"platform_dynamics","platform":"general","source_kind":"note","source_quality":"high","visibility":"private","tags":["eval","t110","platform-dynamics"]}'
+
+          curl -fsS -X POST http://localhost:8080/rag/ingest \
+            -H "Authorization: Bearer $ADMIN_TOKEN" \
+            -F "file=@eval/fixtures/t110-self-knowledge.md;type=text/markdown" \
+            -F 'metadata={"type":"knowledge_asset","layer":"self_knowledge","category":"self_knowledge","platform":"general","source_kind":"note","source_quality":"high","visibility":"private","tags":["eval","t110","self-knowledge"]}'
+
+      - name: Run retrieval eval
+        run: go run ./cmd/eval --api-url http://localhost:8080 --questions eval/questions.yaml --github-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Show API logs on failure
+        if: failure()
+        run: cat api.log

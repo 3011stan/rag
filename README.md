@@ -153,6 +153,14 @@ Answer sources include sanitized metadata when available:
 }
 ```
 
+## Evaluation
+
+The repository includes a deterministic retrieval evaluation that runs in GitHub Actions on pull requests.
+
+It starts the API with `AI_PROVIDER=test`, ingests stable fixtures, calls `/rag/ask`, and validates source metadata hit rates without using external LLM providers.
+
+See [`docs/evaluation.md`](docs/evaluation.md) for details.
+
 Seed demo content:
 
 ```bash
