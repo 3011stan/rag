@@ -39,6 +39,14 @@ type Source struct {
 	Preview    string
 }
 
+var technicalMetadataFields = map[string]struct{}{
+	"filename":     {},
+	"content_type": {},
+	"source_type":  {},
+	"pages":        {},
+	"checksum":     {},
+}
+
 func New(
 	store rag.VectorStore,
 	embedder embeddings.Provider,
@@ -137,10 +145,13 @@ func mergeMetadata(base map[string]interface{}, curation map[string]interface{})
 	}
 
 	merged := make(map[string]interface{}, len(base)+len(curation))
-	for key, value := range curation {
+	for key, value := range base {
 		merged[key] = value
 	}
-	for key, value := range base {
+	for key, value := range curation {
+		if _, reserved := technicalMetadataFields[key]; reserved {
+			continue
+		}
 		merged[key] = value
 	}
 

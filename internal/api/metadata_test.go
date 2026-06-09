@@ -12,7 +12,7 @@ func TestParseCurationMetadataAcceptsValidMetadata(t *testing.T) {
 		"source_quality": "high",
 		"evergreen": true,
 		"visibility": "private",
-		"source_url": "https://example.com/article",
+		"source_url": "https://example.com/article#section",
 		"author": "Example Author",
 		"created": "2026-05-27",
 		"captured_at": "2026-05-27",
@@ -63,6 +63,20 @@ func TestParseCurationMetadataRejectsInvalidTagType(t *testing.T) {
 	_, err := parseCurationMetadata(`{"tags":["valid", 123]}`)
 	if err == nil {
 		t.Fatal("expected invalid tag type error")
+	}
+}
+
+func TestParseCurationMetadataRejectsRelativeSourceURL(t *testing.T) {
+	_, err := parseCurationMetadata(`{"source_url":"/article#section"}`)
+	if err == nil {
+		t.Fatal("expected relative URL error")
+	}
+}
+
+func TestParseCurationMetadataRejectsUnsupportedSourceURLScheme(t *testing.T) {
+	_, err := parseCurationMetadata(`{"source_url":"ftp://example.com/article"}`)
+	if err == nil {
+		t.Fatal("expected unsupported URL scheme error")
 	}
 }
 

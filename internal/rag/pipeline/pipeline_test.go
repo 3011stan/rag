@@ -6,10 +6,12 @@ func TestMergeMetadataKeepsTechnicalMetadata(t *testing.T) {
 	base := map[string]interface{}{
 		"filename":    "notes.md",
 		"source_type": "markdown",
+		"author":      "Loader Author",
 	}
 	curation := map[string]interface{}{
 		"filename": "manual.md",
 		"layer":    "foundations",
+		"author":   "Curated Author",
 	}
 
 	merged := mergeMetadata(base, curation)
@@ -22,6 +24,25 @@ func TestMergeMetadataKeepsTechnicalMetadata(t *testing.T) {
 	}
 	if merged["layer"] != "foundations" {
 		t.Fatalf("expected curation metadata to be merged, got %v", merged["layer"])
+	}
+	if merged["author"] != "Curated Author" {
+		t.Fatalf("expected curation author to override loader author, got %v", merged["author"])
+	}
+}
+
+func TestMergeMetadataKeepsLoaderMetadataWhenCurationMissing(t *testing.T) {
+	base := map[string]interface{}{
+		"author": "Loader Author",
+		"pages":  3,
+	}
+
+	merged := mergeMetadata(base, nil)
+
+	if merged["author"] != "Loader Author" {
+		t.Fatalf("expected loader author to be preserved, got %v", merged["author"])
+	}
+	if merged["pages"] != 3 {
+		t.Fatalf("expected loader pages to be preserved, got %v", merged["pages"])
 	}
 }
 

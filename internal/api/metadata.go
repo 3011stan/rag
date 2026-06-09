@@ -144,8 +144,11 @@ func normalizeMetadataValue(key string, value interface{}) (interface{}, error) 
 		if err != nil || text == "" {
 			return text, err
 		}
-		parsed, parseErr := url.ParseRequestURI(text)
-		if parseErr != nil || parsed.Scheme == "" || parsed.Host == "" {
+		parsed, parseErr := url.Parse(text)
+		if parseErr != nil ||
+			parsed.Scheme == "" ||
+			parsed.Host == "" ||
+			(parsed.Scheme != "http" && parsed.Scheme != "https") {
 			return nil, fmt.Errorf("metadata field %q must be a valid absolute URL", key)
 		}
 		return text, nil
