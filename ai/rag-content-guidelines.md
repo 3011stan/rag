@@ -276,9 +276,13 @@ rag_chunks = chunk content, token count, metadata, embedding, created_at
 
 The system does not persist the original uploaded file as a binary artifact, but it does persist enough document and chunk information to list, inspect, retrieve, and enrich existing records.
 
-Existing documents should not stay as "flat-only" corpus entries. Because the current corpus is small, the preferred approach is manual metadata backfill.
+Existing documents should continue working even if they only have loader metadata.
 
-Manual backfill process:
+Because the current corpus is small and will be replaced by more relevant material, manual backfill is not required now. Prefer ingesting new relevant documents with curated metadata from the start.
+
+Backfill may be revisited later if the corpus grows with valuable legacy documents.
+
+Future backfill process, if needed:
 
 1. List existing documents.
 2. Inspect each title, source, metadata, and representative chunks.
@@ -294,6 +298,35 @@ Legacy documents must continue to work before and after metadata backfill.
 ```
 
 Backfill should improve retrieval behavior, not become a prerequisite for the API to work.
+
+## Corpus Evaluation Process
+
+Before adding many new documents, maintain a small evaluation set.
+
+Each evaluation question should record:
+
+- Question.
+- Expected source or expected source metadata.
+- Preferred metadata, when relevant.
+- Human usefulness score.
+- Human groundedness/fidelity note.
+- Observed failure or regression, if any.
+
+Suggested human scoring:
+
+- `0`: not useful or unsupported by retrieved context.
+- `1`: partially useful but incomplete, generic, or weakly grounded.
+- `2`: useful, grounded, and actionable.
+
+Suggested lightweight metrics:
+
+- Source hit rate: expected source appears in `sources`.
+- Metadata hit rate: expected layer/category/platform appears in `sources`.
+- Answer usefulness average.
+- Groundedness/fidelity notes.
+- Regression count after new ingestion.
+
+The goal is to know whether new content improves retrieval and answers, not only whether ingestion succeeds.
 
 ## Document Preparation Process
 
