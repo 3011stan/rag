@@ -298,6 +298,14 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Permitir pergunta com filtros opcionais
   - Permitir ingestao protegida com metadata
   - Renderizar respostas em Markdown
+- [ ] **T108** - Expor inteligencia de retrieval na UI sem revelar regra interna
+  - Branch planejada: `feature/T108-retrieval-intelligence-ui`
+  - Mostrar que a pergunta usa preferencias de contexto/metadata quando selecionadas
+  - Exibir sinais de fonte de forma amigavel: camada, categoria, plataforma, tipo de fonte e qualidade
+  - Evitar expor pesos, formulas internas ou detalhes sensiveis de ranking
+  - Mostrar mensagem curta como "semantic match + context preferences" ou equivalente
+  - Permitir comparar pergunta com e sem preferences em uma experiencia simples de portfolio
+  - Usar linguagem de produto, nao linguagem interna de regra de negocio
 - [ ] **T102** - Adotar fluxo de branches vinculadas a tarefas
   - Criar branches sempre a partir de `main`
   - Usar padrao `<tipo>/T###-<escopo-curto>`
@@ -319,13 +327,13 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Manter contrato atual de `/rag/ask` funcionando sem preferences
   - Encaminhar preferences para o pipeline/retriever sem aplicar hard filter
   - Adicionar testes de contrato e validacao
-- [ ] **T105** - Implementar soft boost de retrieval por metadata
+- [x] **T105** - Implementar soft boost de retrieval por metadata
   - Branch planejada: `feature/T105-soft-boost-retrieval`
   - Buscar candidatos semanticamente relevantes em quantidade maior que `top_k`
   - Aplicar boost quando metadata bater com preferences
   - Reordenar resultados por score sem excluir chunks relevantes de outras camadas
   - Adicionar testes para boost por layer, category e platform
-  - Documentar pesos iniciais e trade-offs
+  - Documentar pesos iniciais experimentais e trade-offs
 - [x] **T106** - Retornar sources enriquecidas com metadata
   - Branch planejada: `feature/T106-enriched-sources`
   - Incluir metadata relevante nas sources de `/rag/ask`

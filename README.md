@@ -126,7 +126,8 @@ curl -X POST http://localhost:8080/rag/ask \
   -d '{"question":"How should I structure a technical reel?","top_k":5,"preferences":{"layers":["platform_specific","self_knowledge"],"categories":["storytelling"],"platforms":["reels"],"source_kinds":["note","article"],"source_quality":["high"]}}'
 ```
 
-Preferences are validated as metadata hints. They do not apply hard filters.
+Preferences are validated as metadata hints. They do not apply hard filters. When present, they may softly influence retrieval ranking while still allowing semantically useful chunks from other metadata groups.
+The retriever caps `top_k` at `20` and the preference candidate pool at `40`.
 
 Answer sources include sanitized metadata when available:
 

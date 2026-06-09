@@ -110,6 +110,35 @@ The ask preferences contract accepts plural array fields only:
 
 `visibility` is intentionally not an ask preference. It should remain a corpus/access decision rather than a ranking hint.
 
+## Soft Boost Retrieval
+
+Ask preferences are metadata hints, not hard filters.
+
+When preferences are present, retrieval should:
+
+1. Search a wider semantic candidate pool.
+2. Apply experimental metadata boost weights.
+3. Re-rank candidates by adjusted internal score.
+4. Return the final `top_k` without excluding useful chunks from other layers.
+
+Initial experimental weights:
+
+- `layers`: `0.06`
+- `categories`: `0.05`
+- `platforms`: `0.04`
+- `source_kinds`: `0.03`
+- `source_quality`: `0.03`
+
+The vector search score remains the public source score. Adjusted scores are internal ranking details and should not be exposed by default.
+
+Initial candidate pool:
+
+- `candidate_k = top_k * 4`
+- maximum `top_k = 20`
+- maximum `candidate_k = 40`
+
+These values are intentionally experimental and should be revisited after evaluation against a small question set.
+
 ## Metadata in Answer Sources
 
 `POST /rag/ask` may return metadata in each source item.

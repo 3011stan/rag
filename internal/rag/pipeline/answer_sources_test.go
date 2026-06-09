@@ -50,6 +50,10 @@ func (fakeAnswerer) Answer(context.Context, string, *retriever.Retriever) (*answ
 	return &answering.Response{Answer: "answer"}, nil
 }
 
+func (fakeAnswerer) AnswerFromResults(context.Context, string, []retriever.Result) (*answering.Response, error) {
+	return &answering.Response{Answer: "answer"}, nil
+}
+
 func TestAskIncludesChunkMetadataInSources(t *testing.T) {
 	store := &fakeAnswerStore{
 		chunks: []rag.Chunk{

@@ -175,7 +175,7 @@ func mergeMetadata(base map[string]interface{}, curation map[string]interface{})
 func (p *Pipeline) Ask(ctx context.Context, question string, options AskOptions) (*AnswerResult, error) {
 	logger := logging.FromContext(ctx)
 
-	searchResults, err := p.retriever.Retrieve(ctx, question, options.TopK)
+	searchResults, err := p.retriever.RetrieveWithPreferences(ctx, question, options.TopK, toRetrieverPreferences(options.Preferences))
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve context: %w", err)
 	}
@@ -198,7 +198,7 @@ func (p *Pipeline) Ask(ctx context.Context, question string, options AskOptions)
 		}
 	}
 
-	answer, err := p.answerer.Answer(ctx, question, p.retriever)
+	answer, err := p.answerer.AnswerFromResults(ctx, question, searchResults)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate answer: %w", err)
 	}
@@ -211,6 +211,19 @@ func (p *Pipeline) Ask(ctx context.Context, question string, options AskOptions)
 		Answer:  answer.Answer,
 		Sources: sources,
 	}, nil
+}
+
+func toRetrieverPreferences(preferences *AskPreferences) *retriever.Preferences {
+	if preferences == nil {
+		return nil
+	}
+	return &retriever.Preferences{
+		Layers:        preferences.Layers,
+		Categories:    preferences.Categories,
+		Platforms:     preferences.Platforms,
+		SourceKinds:   preferences.SourceKinds,
+		SourceQuality: preferences.SourceQuality,
+	}
 }
 
 func truncate(text string, maxLen int) string {
