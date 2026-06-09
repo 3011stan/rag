@@ -41,6 +41,8 @@ Temporary tokens must not allow:
 - Relevant chunks from other layers should still be able to cooperate in an answer.
 - Layered retrieval is a future option if context composition needs stronger control.
 - Ask preferences are optional metadata hints, not hard filters.
+- Ask preferences may adjust ranking through experimental soft boost weights.
+- Public responses should keep source scores as semantic scores; adjusted ranking scores are internal.
 - Accepted ask preferences are `layers`, `categories`, `platforms`, `source_kinds`, and `source_quality`.
 - `POST /rag/ask` may return source metadata when available.
 - Source metadata returned by public responses must be sanitized through an allowlist.

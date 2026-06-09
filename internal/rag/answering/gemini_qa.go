@@ -92,7 +92,10 @@ func (qs *GeminiQAService) Answer(ctx context.Context, question string, ret *ret
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve context: %w", err)
 	}
+	return qs.AnswerFromResults(ctx, question, searchResults)
+}
 
+func (qs *GeminiQAService) AnswerFromResults(ctx context.Context, question string, searchResults []retriever.Result) (*Response, error) {
 	if len(searchResults) == 0 {
 		return &Response{
 			Answer: "I could not find any relevant information in the knowledge base to answer your question.",

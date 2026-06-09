@@ -10,6 +10,7 @@ import (
 
 type Service interface {
 	Answer(ctx context.Context, question string, ret *retriever.Retriever) (*Response, error)
+	AnswerFromResults(ctx context.Context, question string, searchResults []retriever.Result) (*Response, error)
 }
 
 type QAService struct {
@@ -68,7 +69,10 @@ func (qs *QAService) Answer(ctx context.Context, question string, ret *retriever
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve context: %w", err)
 	}
+	return qs.AnswerFromResults(ctx, question, searchResults)
+}
 
+func (qs *QAService) AnswerFromResults(ctx context.Context, question string, searchResults []retriever.Result) (*Response, error) {
 	if len(searchResults) == 0 {
 		return &Response{
 			Answer: "I could not find any relevant information in the knowledge base to answer your question.",
