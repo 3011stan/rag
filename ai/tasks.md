@@ -306,6 +306,14 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Mostrar mensagem curta como "semantic match + context preferences" ou equivalente
   - Permitir comparar pergunta com e sem preferences em uma experiencia simples de portfolio
   - Usar linguagem de produto, nao linguagem interna de regra de negocio
+- [ ] **T109** - Documentar contrato operacional de metadata e preferences
+  - Branch planejada: `docs/T109-metadata-preferences-contract`
+  - Centralizar em `docs/metadata.md` todos os valores aceitos para `type`, `layer`, `category`, `platform`, `source_kind`, `source_quality` e `visibility`
+  - Explicar a diferenca entre metadata de ingestao e preferences de pergunta
+  - Documentar quais campos podem ser usados em `/rag/ask.preferences`
+  - Registrar exemplos validos e invalidos de payload
+  - Garantir que a documentacao use exatamente os mesmos nomes aceitos pelo backend
+  - Servir como referencia para frontend, Postman e futuras automacoes de ingestao
 - [ ] **T102** - Adotar fluxo de branches vinculadas a tarefas
   - Criar branches sempre a partir de `main`
   - Usar padrao `<tipo>/T###-<escopo-curto>`
