@@ -312,10 +312,10 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Mesclar metadata enviada com metadata basico gerado pelos loaders
   - Manter upload atual funcionando sem metadata
   - Adicionar testes para ingestao com e sem metadata
-- [ ] **T104** - Adicionar contrato de preferences no `/rag/ask`
+- [x] **T104** - Adicionar contrato de preferences no `/rag/ask`
   - Branch planejada: `feature/T104-ask-preferences`
   - Adicionar campo opcional `preferences` no request de pergunta
-  - Validar preferences por layer, category, platform e preferred_layers
+  - Validar preferences por layers, categories, platforms, source_kinds e source_quality
   - Manter contrato atual de `/rag/ask` funcionando sem preferences
   - Encaminhar preferences para o pipeline/retriever sem aplicar hard filter
   - Adicionar testes de contrato e validacao

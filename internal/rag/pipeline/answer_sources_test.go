@@ -71,7 +71,7 @@ func TestAskIncludesChunkMetadataInSources(t *testing.T) {
 		answerer:  fakeAnswerer{},
 	}
 
-	result, err := p.Ask(context.Background(), "question", 1)
+	result, err := p.Ask(context.Background(), "question", AskOptions{TopK: 1})
 	if err != nil {
 		t.Fatalf("expected ask to succeed: %v", err)
 	}

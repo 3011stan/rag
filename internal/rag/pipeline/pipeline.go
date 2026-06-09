@@ -32,6 +32,19 @@ type AnswerResult struct {
 	Sources []Source
 }
 
+type AskOptions struct {
+	TopK        int
+	Preferences *AskPreferences
+}
+
+type AskPreferences struct {
+	Layers        []string
+	Categories    []string
+	Platforms     []string
+	SourceKinds   []string
+	SourceQuality []string
+}
+
 type Source struct {
 	DocumentID string
 	ChunkIndex int
@@ -159,10 +172,10 @@ func mergeMetadata(base map[string]interface{}, curation map[string]interface{})
 	return merged
 }
 
-func (p *Pipeline) Ask(ctx context.Context, question string, topK int) (*AnswerResult, error) {
+func (p *Pipeline) Ask(ctx context.Context, question string, options AskOptions) (*AnswerResult, error) {
 	logger := logging.FromContext(ctx)
 
-	searchResults, err := p.retriever.Retrieve(ctx, question, topK)
+	searchResults, err := p.retriever.Retrieve(ctx, question, options.TopK)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve context: %w", err)
 	}
