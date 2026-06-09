@@ -102,6 +102,14 @@ curl -X POST http://localhost:8080/rag/ingest \
   -F 'file=@/path/to/notes.md;type=text/markdown'
 ```
 
+Ingest with optional curation metadata:
+
+```bash
+curl -X POST http://localhost:8080/rag/ingest \
+  -F 'file=@/path/to/notes.md;type=text/markdown' \
+  -F 'metadata={"type":"knowledge_asset","layer":"foundations","category":"storytelling","platform":"general","source_kind":"article","source_quality":"high","visibility":"private","tags":["narrative","retention"]}'
+```
+
 Ask a question:
 
 ```bash

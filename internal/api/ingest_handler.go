@@ -40,12 +40,14 @@ func (srv *APIServer) IngestHandler() http.HandlerFunc {
 			Str("filename", uploaded.Name).
 			Str("content_type", uploaded.ContentType).
 			Int("size_bytes", len(uploaded.Data)).
+			Int("metadata_fields", len(uploaded.Metadata)).
 			Msg("processing document")
 
 		result, err := srv.pipeline.Ingest(ctx, loader.Source{
 			Name:        uploaded.Name,
 			ContentType: uploaded.ContentType,
 			Data:        uploaded.Data,
+			Metadata:    uploaded.Metadata,
 		})
 		if err != nil {
 			if errors.Is(err, loader.ErrUnsupportedType) || errors.Is(err, loader.ErrInvalidDocument) {

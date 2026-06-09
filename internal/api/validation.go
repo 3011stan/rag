@@ -12,6 +12,7 @@ type uploadedFile struct {
 	Data        []byte
 	Name        string
 	ContentType string
+	Metadata    map[string]interface{}
 }
 
 func (srv *APIServer) parseAndValidateFile(r *http.Request) (*uploadedFile, error) {
@@ -37,10 +38,16 @@ func (srv *APIServer) parseAndValidateFile(r *http.Request) (*uploadedFile, erro
 		return nil, fmt.Errorf("file is empty")
 	}
 
+	metadata, err := parseCurationMetadata(r.FormValue("metadata"))
+	if err != nil {
+		return nil, err
+	}
+
 	return &uploadedFile{
 		Data:        fileData,
 		Name:        header.Filename,
 		ContentType: header.Header.Get(contentTypeHeader),
+		Metadata:    metadata,
 	}, nil
 }
 

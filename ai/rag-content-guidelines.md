@@ -234,7 +234,6 @@ platform: general
 source_kind: article
 source_quality: high
 evergreen: true
-ingestion_status: approved
 visibility: private
 source_url:
 author:
@@ -252,16 +251,17 @@ Recommended fields:
 - `layer`: `foundations`, `platform_specific`, `self_knowledge`, or `editorial_decisions`.
 - `category`: corpus category, such as `creator_systems`, `storytelling`, `technical_communication`, `platform_dynamics`, or `self_knowledge`.
 - `platform`: `general`, `youtube`, `reels`, `tiktok`, `linkedin`, `medium`, or `podcast`.
-- `source_kind`: source format, such as `article`, `transcript`, `note`, `script`, `decision`, or `pdf_extract`.
+- `source_kind`: source format, such as `article`, `transcript`, `note`, `script`, `decision`, `pdf_extract`, `workflow`, or `reference`.
 - `source_quality`: `high`, `medium`, or `low`.
 - `evergreen`: whether the material is expected to remain useful over time.
-- `ingestion_status`: `candidate`, `approved`, `ingested`, or `rejected`.
 - `visibility`: `private`, `portfolio_demo`, or `public`.
 - `source_url`: original URL when available.
 - `author`: original author or creator when available.
 - `created`: original creation date when known.
 - `captured_at`: date when the material was captured into StanOS.
 - `tags`: focused tags that help retrieval and review.
+
+`ingestion_status` is a StanOS/Obsidian workflow field, not RAG backend metadata. It can be used before ingestion with values such as `candidate`, `approved`, or `rejected`, but it should not be persisted in the RAG database. If a document is present in the RAG database, its ingestion status is already implicit.
 
 Avoid over-modeling the schema too early. Add fields only when they support retrieval, curation, evaluation, or automation.
 

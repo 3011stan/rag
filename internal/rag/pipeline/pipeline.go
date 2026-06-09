@@ -39,6 +39,14 @@ type Source struct {
 	Preview    string
 }
 
+var technicalMetadataFields = map[string]struct{}{
+	"filename":     {},
+	"content_type": {},
+	"source_type":  {},
+	"pages":        {},
+	"checksum":     {},
+}
+
 func New(
 	store rag.VectorStore,
 	embedder embeddings.Provider,
@@ -71,6 +79,7 @@ func (p *Pipeline) Ingest(ctx context.Context, source loader.Source) (*IngestRes
 
 	doc := loaded.Document
 	text := loaded.Text
+	doc.Metadata = mergeMetadata(doc.Metadata, source.Metadata)
 
 	logger.Info().
 		Int("char_count", len(text)).
@@ -128,6 +137,25 @@ func (p *Pipeline) IngestPDF(ctx context.Context, fileData []byte, fileName stri
 		ContentType: "application/pdf",
 		Data:        fileData,
 	})
+}
+
+func mergeMetadata(base map[string]interface{}, curation map[string]interface{}) map[string]interface{} {
+	if len(base) == 0 && len(curation) == 0 {
+		return nil
+	}
+
+	merged := make(map[string]interface{}, len(base)+len(curation))
+	for key, value := range base {
+		merged[key] = value
+	}
+	for key, value := range curation {
+		if _, reserved := technicalMetadataFields[key]; reserved {
+			continue
+		}
+		merged[key] = value
+	}
+
+	return merged
 }
 
 func (p *Pipeline) Ask(ctx context.Context, question string, topK int) (*AnswerResult, error) {
