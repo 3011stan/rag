@@ -501,7 +501,8 @@ Fluxo esperado para cada mudanca:
 5. Validar localmente.
 6. Fazer commit pequeno usando Conventional Commits.
 7. Fazer push da branch.
-8. Abrir PR ou mergear conforme o momento do projeto.
+8. Abrir PR com descricao do escopo, validacoes executadas e pontos de review.
+9. Fazer merge somente apos review/curadoria.
 
 ### Convencao De Commits
 

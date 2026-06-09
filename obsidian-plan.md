@@ -353,6 +353,7 @@ Future developer workflow integration:
 
 - Project tasks should have stable IDs.
 - Git branches should include the task ID that originated the work.
+- Remote Git branches should be accompanied by a pull request with a clear description of the change, validation performed, and review context.
 - The task manager should eventually connect daily planning with software delivery work.
 - Example: a day plan may include `T099 - Document RAG content feeding strategy`, and the related Git branch may be `docs/T099-rag-content-guidelines`.
 - This connects personal planning, project management, Git history, and portfolio narrative.

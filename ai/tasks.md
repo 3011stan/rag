@@ -303,6 +303,8 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Usar padrao `<tipo>/T###-<escopo-curto>`
   - Garantir que toda branch tenha tarefa registrada em `ai/tasks.md`
   - Documentar validacoes esperadas antes de commit/push
+  - Abrir PR para cada branch remota com descricao do escopo e validacoes
+  - Fazer merge somente apos review/curadoria
 - [x] **T103** - Aceitar metadata estruturado na ingestao
   - Branch planejada: `feature/T103-metadata-ingestion`
   - Aceitar metadata opcional em `/rag/ingest`
