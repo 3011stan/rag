@@ -118,6 +118,29 @@ curl -X POST http://localhost:8080/rag/ask \
   -d '{"question":"What is the document about?","top_k":5}'
 ```
 
+Answer sources include sanitized metadata when available:
+
+```json
+{
+  "answer": "...",
+  "sources": [
+    {
+      "document_id": "...",
+      "chunk_index": 0,
+      "score": 0.42,
+      "preview": "...",
+      "metadata": {
+        "type": "knowledge_asset",
+        "layer": "foundations",
+        "category": "storytelling",
+        "source_quality": "high",
+        "tags": ["narrative", "retention"]
+      }
+    }
+  ]
+}
+```
+
 Seed demo content:
 
 ```bash
