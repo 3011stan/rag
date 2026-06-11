@@ -55,6 +55,9 @@ type Config struct {
 	CORSAllowedOrigins   []string
 	PublicUploadEnabled  bool
 	MaxUploadBytes       int64
+	RateLimitEnabled     bool
+	RateLimitRequests    int
+	RateLimitWindowSecs  int
 }
 
 func Load() (*Config, error) {
@@ -81,6 +84,9 @@ func Load() (*Config, error) {
 		CORSAllowedOrigins:   getEnvAsListOrDefault("CORS_ALLOWED_ORIGINS", defaultCORSAllowedOrigins(env)),
 		PublicUploadEnabled:  getEnvAsBoolOrDefault("ENABLE_PUBLIC_UPLOAD", env != "production"),
 		MaxUploadBytes:       getEnvAsInt64OrDefault("MAX_UPLOAD_BYTES", 10<<20),
+		RateLimitEnabled:     getEnvAsBoolOrDefault("RATE_LIMIT_ENABLED", env == "production"),
+		RateLimitRequests:    getEnvAsIntOrDefault("RATE_LIMIT_REQUESTS", 20),
+		RateLimitWindowSecs:  getEnvAsIntOrDefault("RATE_LIMIT_WINDOW_SECONDS", 60),
 	}
 
 	cfg.applyModelDefaults()

@@ -43,7 +43,7 @@ func main() {
 	})
 
 	router.Post("/rag/ingest", server.IngestHandler())
-	router.Post("/rag/ask", server.AskHandler())
+	router.With(server.RateLimitMiddleware()).Post("/rag/ask", server.AskHandler())
 	router.Post("/auth/temp-token", server.TemporaryTokenHandler())
 	router.Get("/documents", server.ListDocumentsHandler())
 	router.Delete("/documents/{id}", server.DeleteDocumentHandler())

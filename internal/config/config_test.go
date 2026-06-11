@@ -1,6 +1,9 @@
 package config
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 func TestResolvedAIProvider_AutoWithoutOpenAIKeyUsesOllama(t *testing.T) {
 	cfg := &Config{AIProvider: ProviderAuto}
@@ -129,5 +132,62 @@ func TestLoadParsesCORSAllowedOrigins(t *testing.T) {
 	}
 	if cfg.CORSAllowedOrigins[1] != "https://rag-lab.vercel.app" {
 		t.Fatalf("unexpected origin: %q", cfg.CORSAllowedOrigins[1])
+	}
+}
+
+func TestLoadEnablesRateLimitByDefaultInProduction(t *testing.T) {
+	t.Setenv("ENVIRONMENT", "production")
+	unsetEnv(t, "RATE_LIMIT_ENABLED")
+	unsetEnv(t, "RATE_LIMIT_REQUESTS")
+	unsetEnv(t, "RATE_LIMIT_WINDOW_SECONDS")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load failed: %v", err)
+	}
+	if !cfg.RateLimitEnabled {
+		t.Fatal("expected rate limit enabled in production")
+	}
+	if cfg.RateLimitRequests != 20 {
+		t.Fatalf("expected default request limit, got %d", cfg.RateLimitRequests)
+	}
+	if cfg.RateLimitWindowSecs != 60 {
+		t.Fatalf("expected default rate limit window, got %d", cfg.RateLimitWindowSecs)
+	}
+}
+
+func unsetEnv(t *testing.T, key string) {
+	t.Helper()
+
+	previous, existed := os.LookupEnv(key)
+	if err := os.Unsetenv(key); err != nil {
+		t.Fatalf("failed to unset %s: %v", key, err)
+	}
+	t.Cleanup(func() {
+		if existed {
+			_ = os.Setenv(key, previous)
+			return
+		}
+		_ = os.Unsetenv(key)
+	})
+}
+
+func TestLoadAllowsRateLimitOverride(t *testing.T) {
+	t.Setenv("RATE_LIMIT_ENABLED", "true")
+	t.Setenv("RATE_LIMIT_REQUESTS", "7")
+	t.Setenv("RATE_LIMIT_WINDOW_SECONDS", "30")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load failed: %v", err)
+	}
+	if !cfg.RateLimitEnabled {
+		t.Fatal("expected rate limit override")
+	}
+	if cfg.RateLimitRequests != 7 {
+		t.Fatalf("expected request limit override, got %d", cfg.RateLimitRequests)
+	}
+	if cfg.RateLimitWindowSecs != 30 {
+		t.Fatalf("expected window override, got %d", cfg.RateLimitWindowSecs)
 	}
 }

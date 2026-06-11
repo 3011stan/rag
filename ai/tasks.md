@@ -403,10 +403,13 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Consultar status do deploy automaticamente
   - Rodar smoke tests de `/health`, `/admin/seed-demo` e `/rag/ask`
   - Documentar `RENDER_API_KEY`, `RENDER_SERVICE_ID` e `RENDER_SERVICE_URL` como GitHub Secrets futuros
-- [ ] **T096** - Adicionar rate limiting para API publica
+- [x] **T096** - Adicionar rate limiting para API publica
   - Definir estrategia simples por IP
   - Proteger `/rag/ask` contra abuso de custo
   - Documentar limites esperados da demo publica
+  - Implementar fixed window em memoria para uma instancia
+  - Configurar via `RATE_LIMIT_ENABLED`, `RATE_LIMIT_REQUESTS` e `RATE_LIMIT_WINDOW_SECONDS`
+  - Manter `/health` e endpoints protegidos fora do rate limit
 
 ---
 
@@ -462,7 +465,7 @@ Caminho local/offline/free com Ollama concluído e validado com teste end-to-end
 - Ingestão: Via API com upload de PDFs
 - Chunking: 800 tokens com 100 tokens de overlap
 - Top-K default: 5
-- Sem autenticação ou rate limiting no MVP
+- MVP original evoluiu para demo publica com autenticação admin e rate limiting em `/rag/ask`
 
 ---
 
