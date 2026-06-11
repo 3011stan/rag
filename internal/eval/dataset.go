@@ -59,7 +59,7 @@ func LoadDataset(path string) (*Dataset, error) {
 	return &dataset, nil
 }
 
-func (d Dataset) Validate() error {
+func (d *Dataset) Validate() error {
 	if len(d.Questions) == 0 {
 		return fmt.Errorf("dataset must contain at least one question")
 	}

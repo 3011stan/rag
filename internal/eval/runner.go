@@ -16,9 +16,9 @@ type Runner struct {
 }
 
 type askRequest struct {
-	Question    string      `json:"question"`
-	TopK        int         `json:"top_k"`
-	Preferences Preferences `json:"preferences,omitempty"`
+	Question    string       `json:"question"`
+	TopK        int          `json:"top_k"`
+	Preferences *Preferences `json:"preferences,omitempty"`
 }
 
 type askResponse struct {
@@ -57,7 +57,7 @@ func (r *Runner) ask(ctx context.Context, question Question) (*askResponse, erro
 	payload, err := json.Marshal(askRequest{
 		Question:    question.Question,
 		TopK:        question.TopK,
-		Preferences: question.Preferences,
+		Preferences: preferencesPtr(question.Preferences),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal ask request: %w", err)
@@ -84,4 +84,15 @@ func (r *Runner) ask(ctx context.Context, question Question) (*askResponse, erro
 		return nil, fmt.Errorf("failed to decode ask response: %w", err)
 	}
 	return &result, nil
+}
+
+func preferencesPtr(preferences Preferences) *Preferences {
+	if len(preferences.Layers) == 0 &&
+		len(preferences.Categories) == 0 &&
+		len(preferences.Platforms) == 0 &&
+		len(preferences.SourceKinds) == 0 &&
+		len(preferences.SourceQuality) == 0 {
+		return nil
+	}
+	return &preferences
 }
