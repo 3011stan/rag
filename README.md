@@ -194,6 +194,9 @@ TEMP_TOKEN_SECRET=...
 CORS_ALLOWED_ORIGINS=https://YOUR-FRONTEND.vercel.app
 ENABLE_PUBLIC_UPLOAD=false
 MAX_UPLOAD_BYTES=10485760
+RATE_LIMIT_ENABLED=true
+RATE_LIMIT_REQUESTS=20
+RATE_LIMIT_WINDOW_SECONDS=60
 GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
 EMBEDDING_MODEL=gemini-embedding-001
 LLM_MODEL=gemini-2.5-flash-lite
@@ -228,6 +231,7 @@ Render Free does not support pre-deploy commands in Blueprint services. After th
 - Document deletion, debug metadata, and demo seeding require the real `ADMIN_TOKEN`.
 - Uploads are limited by `MAX_UPLOAD_BYTES`, defaulting to 10 MB.
 - JSON question payloads are limited and must use `Content-Type: application/json`.
+- `POST /rag/ask` supports in-memory IP-based rate limiting via `RATE_LIMIT_ENABLED`, `RATE_LIMIT_REQUESTS`, and `RATE_LIMIT_WINDOW_SECONDS`.
 - Basic security headers are set on every response.
 - Prompt templates explicitly treat retrieved documents as untrusted content.
 

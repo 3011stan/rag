@@ -84,4 +84,10 @@ func applyDefaults(cfg *config.Config) {
 	if cfg.MaxUploadBytes <= 0 {
 		cfg.MaxUploadBytes = 10 << 20
 	}
+	if cfg.RateLimitRequests <= 0 {
+		cfg.RateLimitRequests = 20
+	}
+	if cfg.RateLimitWindowSecs <= 0 {
+		cfg.RateLimitWindowSecs = 60
+	}
 }

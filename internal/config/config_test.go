@@ -131,3 +131,41 @@ func TestLoadParsesCORSAllowedOrigins(t *testing.T) {
 		t.Fatalf("unexpected origin: %q", cfg.CORSAllowedOrigins[1])
 	}
 }
+
+func TestLoadEnablesRateLimitByDefaultInProduction(t *testing.T) {
+	t.Setenv("ENVIRONMENT", "production")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load failed: %v", err)
+	}
+	if !cfg.RateLimitEnabled {
+		t.Fatal("expected rate limit enabled in production")
+	}
+	if cfg.RateLimitRequests != 20 {
+		t.Fatalf("expected default request limit, got %d", cfg.RateLimitRequests)
+	}
+	if cfg.RateLimitWindowSecs != 60 {
+		t.Fatalf("expected default rate limit window, got %d", cfg.RateLimitWindowSecs)
+	}
+}
+
+func TestLoadAllowsRateLimitOverride(t *testing.T) {
+	t.Setenv("RATE_LIMIT_ENABLED", "true")
+	t.Setenv("RATE_LIMIT_REQUESTS", "7")
+	t.Setenv("RATE_LIMIT_WINDOW_SECONDS", "30")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load failed: %v", err)
+	}
+	if !cfg.RateLimitEnabled {
+		t.Fatal("expected rate limit override")
+	}
+	if cfg.RateLimitRequests != 7 {
+		t.Fatalf("expected request limit override, got %d", cfg.RateLimitRequests)
+	}
+	if cfg.RateLimitWindowSecs != 30 {
+		t.Fatalf("expected window override, got %d", cfg.RateLimitWindowSecs)
+	}
+}
