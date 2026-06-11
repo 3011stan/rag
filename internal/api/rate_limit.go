@@ -10,16 +10,23 @@ import (
 )
 
 type rateLimiter struct {
-	mu      sync.Mutex
-	clients map[string]rateLimitWindow
-	limit   int
-	window  time.Duration
-	now     func() time.Time
+	mu          sync.Mutex
+	clients     map[string]rateLimitWindow
+	limit       int
+	window      time.Duration
+	lastCleanup time.Time
+	now         func() time.Time
 }
 
 type rateLimitWindow struct {
 	start time.Time
 	count int
+}
+
+type rateLimitResult struct {
+	Allowed    bool
+	Remaining  int
+	RetryAfter time.Duration
 }
 
 func newRateLimiter(limit int, window time.Duration) *rateLimiter {
@@ -31,20 +38,16 @@ func newRateLimiter(limit int, window time.Duration) *rateLimiter {
 	}
 }
 
-func (l *rateLimiter) allow(key string) (bool, int, time.Duration) {
+func (l *rateLimiter) allow(key string) rateLimitResult {
 	if l == nil || l.limit <= 0 || l.window <= 0 {
-		return true, 0, 0
+		return rateLimitResult{Allowed: true}
 	}
 
 	now := l.now()
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	for client, window := range l.clients {
-		if now.Sub(window.start) >= l.window {
-			delete(l.clients, client)
-		}
-	}
+	l.cleanupExpired(now)
 
 	window := l.clients[key]
 	if window.start.IsZero() || now.Sub(window.start) >= l.window {
@@ -58,30 +61,39 @@ func (l *rateLimiter) allow(key string) (bool, int, time.Duration) {
 		remaining = 0
 	}
 	if window.count > l.limit {
-		return false, remaining, l.window - now.Sub(window.start)
+		return rateLimitResult{
+			Allowed:    false,
+			Remaining:  remaining,
+			RetryAfter: l.window - now.Sub(window.start),
+		}
 	}
-	return true, remaining, 0
+	return rateLimitResult{Allowed: true, Remaining: remaining}
+}
+
+func (l *rateLimiter) cleanupExpired(now time.Time) {
+	if !l.lastCleanup.IsZero() && now.Sub(l.lastCleanup) < l.window {
+		return
+	}
+	for client, window := range l.clients {
+		if now.Sub(window.start) >= l.window {
+			delete(l.clients, client)
+		}
+	}
+	l.lastCleanup = now
 }
 
 func (srv *APIServer) RateLimitMiddleware() func(http.Handler) http.Handler {
-	if srv == nil || srv.cfg == nil || !srv.cfg.RateLimitEnabled {
-		return func(next http.Handler) http.Handler {
-			return next
-		}
+	if !srv.rateLimitEnabled() {
+		return noopMiddleware
 	}
 
 	limiter := newRateLimiter(srv.cfg.RateLimitRequests, time.Duration(srv.cfg.RateLimitWindowSecs)*time.Second)
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			allowed, remaining, retryAfter := limiter.allow(clientIP(r))
-			w.Header().Set("X-RateLimit-Limit", strconv.Itoa(limiter.limit))
-			w.Header().Set("X-RateLimit-Remaining", strconv.Itoa(remaining))
-			if !allowed {
-				if retryAfter < time.Second {
-					retryAfter = time.Second
-				}
-				w.Header().Set("Retry-After", strconv.Itoa(int(retryAfter.Seconds())))
-				respondError(w, "rate limit exceeded", http.StatusTooManyRequests, nil)
+			result := limiter.allow(clientIP(r))
+			writeRateLimitHeaders(w, limiter.limit, result)
+			if !result.Allowed {
+				writeRateLimitExceeded(w, result.RetryAfter)
 				return
 			}
 			next.ServeHTTP(w, r)
@@ -89,18 +101,52 @@ func (srv *APIServer) RateLimitMiddleware() func(http.Handler) http.Handler {
 	}
 }
 
+func (srv *APIServer) rateLimitEnabled() bool {
+	return srv != nil && srv.cfg != nil && srv.cfg.RateLimitEnabled
+}
+
+func noopMiddleware(next http.Handler) http.Handler {
+	return next
+}
+
+func writeRateLimitHeaders(w http.ResponseWriter, limit int, result rateLimitResult) {
+	w.Header().Set("X-RateLimit-Limit", strconv.Itoa(limit))
+	w.Header().Set("X-RateLimit-Remaining", strconv.Itoa(result.Remaining))
+}
+
+func writeRateLimitExceeded(w http.ResponseWriter, retryAfter time.Duration) {
+	if retryAfter < time.Second {
+		retryAfter = time.Second
+	}
+	w.Header().Set("Retry-After", strconv.Itoa(int(retryAfter.Seconds())))
+	respondError(w, "rate limit exceeded", http.StatusTooManyRequests, nil)
+}
+
 func clientIP(r *http.Request) string {
 	if forwardedFor := r.Header.Get("X-Forwarded-For"); forwardedFor != "" {
-		if ip := strings.TrimSpace(strings.Split(forwardedFor, ",")[0]); ip != "" {
+		if ip := parseClientIP(strings.Split(forwardedFor, ",")[0]); ip != "" {
 			return ip
 		}
 	}
-	if realIP := strings.TrimSpace(r.Header.Get("X-Real-IP")); realIP != "" {
+	if realIP := parseClientIP(r.Header.Get("X-Real-IP")); realIP != "" {
 		return realIP
 	}
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err == nil && host != "" {
-		return host
+	if err == nil {
+		if ip := parseClientIP(host); ip != "" {
+			return ip
+		}
 	}
-	return r.RemoteAddr
+	if ip := parseClientIP(r.RemoteAddr); ip != "" {
+		return ip
+	}
+	return "unknown"
+}
+
+func parseClientIP(value string) string {
+	ip := net.ParseIP(strings.TrimSpace(value))
+	if ip == nil {
+		return ""
+	}
+	return ip.String()
 }

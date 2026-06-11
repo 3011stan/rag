@@ -98,6 +98,27 @@ func TestRateLimitMiddlewareUsesForwardedFor(t *testing.T) {
 	}
 }
 
+func TestRateLimitMiddlewareIgnoresInvalidForwardedFor(t *testing.T) {
+	server := &APIServer{cfg: &config.Config{
+		RateLimitEnabled:    true,
+		RateLimitRequests:   1,
+		RateLimitWindowSecs: 60,
+	}}
+	handler := server.RateLimitMiddleware()(okHandler())
+
+	req := httptest.NewRequest(http.MethodPost, "/rag/ask", nil)
+	req.RemoteAddr = "203.0.113.10:1234"
+	req.Header.Set("X-Forwarded-For", "not-an-ip")
+	handler.ServeHTTP(httptest.NewRecorder(), req)
+
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusTooManyRequests {
+		t.Fatalf("expected fallback RemoteAddr IP to be rate limited, got %d", rec.Code)
+	}
+}
+
 func TestRateLimitMiddlewareDisabledAllowsAllRequests(t *testing.T) {
 	server := &APIServer{cfg: &config.Config{
 		RateLimitEnabled:    false,
@@ -123,16 +144,37 @@ func TestRateLimiterResetsAfterWindow(t *testing.T) {
 	now := time.Date(2026, 6, 11, 10, 0, 0, 0, time.UTC)
 	limiter.now = func() time.Time { return now }
 
-	if allowed, _, _ := limiter.allow("client"); !allowed {
+	if result := limiter.allow("client"); !result.Allowed {
 		t.Fatal("expected first request to pass")
 	}
-	if allowed, _, _ := limiter.allow("client"); allowed {
+	if result := limiter.allow("client"); result.Allowed {
 		t.Fatal("expected second request to be blocked")
 	}
 
 	now = now.Add(time.Minute)
-	if allowed, _, _ := limiter.allow("client"); !allowed {
+	if result := limiter.allow("client"); !result.Allowed {
 		t.Fatal("expected request to pass after window reset")
+	}
+}
+
+func TestRateLimiterCleanupIsPeriodic(t *testing.T) {
+	limiter := newRateLimiter(1, time.Minute)
+	now := time.Date(2026, 6, 11, 10, 0, 0, 0, time.UTC)
+	limiter.now = func() time.Time { return now }
+
+	limiter.allow("first")
+	now = now.Add(30 * time.Second)
+	limiter.allow("second")
+
+	if _, exists := limiter.clients["first"]; !exists {
+		t.Fatal("expected first client to remain before cleanup interval")
+	}
+
+	now = now.Add(31 * time.Second)
+	limiter.allow("third")
+
+	if _, exists := limiter.clients["first"]; exists {
+		t.Fatal("expected expired client to be cleaned up")
 	}
 }
 

@@ -1,6 +1,9 @@
 package config
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 func TestResolvedAIProvider_AutoWithoutOpenAIKeyUsesOllama(t *testing.T) {
 	cfg := &Config{AIProvider: ProviderAuto}
@@ -134,6 +137,9 @@ func TestLoadParsesCORSAllowedOrigins(t *testing.T) {
 
 func TestLoadEnablesRateLimitByDefaultInProduction(t *testing.T) {
 	t.Setenv("ENVIRONMENT", "production")
+	unsetEnv(t, "RATE_LIMIT_ENABLED")
+	unsetEnv(t, "RATE_LIMIT_REQUESTS")
+	unsetEnv(t, "RATE_LIMIT_WINDOW_SECONDS")
 
 	cfg, err := Load()
 	if err != nil {
@@ -148,6 +154,22 @@ func TestLoadEnablesRateLimitByDefaultInProduction(t *testing.T) {
 	if cfg.RateLimitWindowSecs != 60 {
 		t.Fatalf("expected default rate limit window, got %d", cfg.RateLimitWindowSecs)
 	}
+}
+
+func unsetEnv(t *testing.T, key string) {
+	t.Helper()
+
+	previous, existed := os.LookupEnv(key)
+	if err := os.Unsetenv(key); err != nil {
+		t.Fatalf("failed to unset %s: %v", key, err)
+	}
+	t.Cleanup(func() {
+		if existed {
+			_ = os.Setenv(key, previous)
+			return
+		}
+		_ = os.Unsetenv(key)
+	})
 }
 
 func TestLoadAllowsRateLimitOverride(t *testing.T) {
