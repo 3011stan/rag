@@ -13,6 +13,7 @@ const (
 	ProviderGemini = "gemini"
 	ProviderOllama = "ollama"
 	ProviderOpenAI = "openai"
+	ProviderTest   = "test"
 )
 
 type Config struct {
@@ -95,8 +96,9 @@ func Load() (*Config, error) {
 	if cfg.AIProvider != ProviderAuto &&
 		cfg.AIProvider != ProviderGemini &&
 		cfg.AIProvider != ProviderOllama &&
-		cfg.AIProvider != ProviderOpenAI {
-		return nil, fmt.Errorf("AI_PROVIDER must be one of: auto, gemini, ollama, openai")
+		cfg.AIProvider != ProviderOpenAI &&
+		cfg.AIProvider != ProviderTest {
+		return nil, fmt.Errorf("AI_PROVIDER must be one of: auto, gemini, ollama, openai, test")
 	}
 
 	if cfg.AIProvider == ProviderGemini && cfg.GeminiAPIKey == "" {
@@ -124,6 +126,19 @@ func (cfg *Config) ResolvedAIProvider() string {
 }
 
 func (cfg *Config) applyModelDefaults() {
+	if cfg.ResolvedAIProvider() == ProviderTest {
+		if cfg.EmbeddingModel == "" {
+			cfg.EmbeddingModel = "deterministic-hashing-vectorizer"
+		}
+		if cfg.LLMModel == "" {
+			cfg.LLMModel = "deterministic-test-answerer"
+		}
+		if cfg.EmbeddingDimensions <= 0 || cfg.EmbeddingDimensions == 768 {
+			cfg.EmbeddingDimensions = 256
+		}
+		return
+	}
+
 	if cfg.ResolvedAIProvider() == ProviderGemini {
 		if cfg.EmbeddingModel == "" {
 			cfg.EmbeddingModel = "gemini-embedding-001"

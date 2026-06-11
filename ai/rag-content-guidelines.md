@@ -314,6 +314,8 @@ Recommended preparation flow:
 11. Test with representative questions.
 12. Record whether retrieval and answers were useful.
 
+The CI evaluation uses stable fixtures rather than the real corpus. Do not update eval fixtures for every new document. Update them only when a stable retrieval behavior needs coverage.
+
 ## Knowledge Asset Transformation
 
 Not every source should be ingested as raw text.

@@ -1,0 +1,80 @@
+thresholds:
+  metadata_hit_rate: 0.80
+  top_source_metadata_hit_rate: 0.60
+  min_sources_per_question: 1
+
+questions:
+  - id: q001-foundations
+    question: "How should I explain a technical concept to software engineers learning machine learning engineering?"
+    top_k: 3
+    preferences:
+      layers: ["foundations"]
+      categories: ["technical_communication"]
+      platforms: ["general"]
+      source_kinds: ["note"]
+      source_quality: ["high"]
+    expected_metadata:
+      layers: ["foundations"]
+      categories: ["technical_communication"]
+      platforms: ["general"]
+    expected_preview_contains: ["technical concept"]
+
+  - id: q002-reels
+    question: "How should I turn a machine learning engineering explanation into a short technical reel?"
+    top_k: 3
+    preferences:
+      layers: ["platform_specific"]
+      categories: ["storytelling"]
+      platforms: ["reels"]
+      source_kinds: ["note"]
+      source_quality: ["high"]
+    expected_metadata:
+      layers: ["platform_specific"]
+      categories: ["storytelling"]
+      platforms: ["reels"]
+    expected_preview_contains: ["reels"]
+
+  - id: q003-podcast
+    question: "How should I explain engineering trade-offs in a longer podcast conversation?"
+    top_k: 3
+    preferences:
+      layers: ["platform_specific"]
+      categories: ["storytelling"]
+      platforms: ["podcast"]
+      source_kinds: ["note"]
+      source_quality: ["high"]
+    expected_metadata:
+      layers: ["platform_specific"]
+      categories: ["storytelling"]
+      platforms: ["podcast"]
+    expected_preview_contains: ["podcast"]
+
+  - id: q004-platform-dynamics
+    question: "How should I adapt the same technical idea across content platforms?"
+    top_k: 3
+    preferences:
+      layers: ["platform_specific"]
+      categories: ["platform_dynamics"]
+      platforms: ["general"]
+      source_kinds: ["note"]
+      source_quality: ["high"]
+    expected_metadata:
+      layers: ["platform_specific"]
+      categories: ["platform_dynamics"]
+      platforms: ["general"]
+    expected_preview_contains: ["platform"]
+
+  - id: q005-self-knowledge
+    question: "How should I keep my technical content aligned with my own voice and learning path?"
+    top_k: 3
+    preferences:
+      layers: ["self_knowledge"]
+      categories: ["self_knowledge"]
+      platforms: ["general"]
+      source_kinds: ["note"]
+      source_quality: ["high"]
+    expected_metadata:
+      layers: ["self_knowledge"]
+      categories: ["self_knowledge"]
+      platforms: ["general"]
+    expected_preview_contains: ["voice"]

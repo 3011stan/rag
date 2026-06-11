@@ -21,6 +21,8 @@ func NewEmbeddingProvider(cfg *config.Config) (embeddings.Provider, error) {
 		return embeddings.NewOllamaProvider(cfg.OllamaBaseURL, cfg.EmbeddingModel), nil
 	case config.ProviderOpenAI:
 		return embeddings.NewOpenAIProvider(cfg.OpenAIAPIKey), nil
+	case config.ProviderTest:
+		return embeddings.NewTestProvider(cfg.EmbeddingDimensions), nil
 	default:
 		return nil, fmt.Errorf("unsupported AI provider: %s", cfg.ResolvedAIProvider())
 	}
@@ -39,6 +41,9 @@ func NewAnsweringService(cfg *config.Config) (answering.Service, error) {
 	case config.ProviderOpenAI:
 		return answering.NewQAService(cfg.OpenAIAPIKey).
 			WithTemperature(0.3).
+			WithTopK(cfg.TopK), nil
+	case config.ProviderTest:
+		return answering.NewTestQAService().
 			WithTopK(cfg.TopK), nil
 	default:
 		return nil, fmt.Errorf("unsupported AI provider: %s", cfg.ResolvedAIProvider())

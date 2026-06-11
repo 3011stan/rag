@@ -314,15 +314,16 @@ Nenhuma no momento. Caminho local/offline/free com Ollama concluído. ✅
   - Registrar exemplos validos e invalidos de payload
   - Garantir que a documentacao use exatamente os mesmos nomes aceitos pelo backend
   - Servir como referencia para frontend, Postman e futuras automacoes de ingestao
-- [ ] **T110** - Criar processo de avaliacao do corpus RAG
-  - Branch planejada: `docs/T110-rag-corpus-evaluation-process`
-  - Definir um conjunto pequeno de perguntas de avaliacao antes de ampliar o corpus
-  - Registrar expected sources ou criterios de fonte esperada por pergunta
-  - Registrar avaliacao humana de resposta: utilidade, fidelidade ao contexto, completude e acionabilidade
-  - Comparar resultados antes/depois de novas ingestoes relevantes
-  - Medir sinais simples: source hit rate, answer usefulness score, groundedness e regressions observadas
-  - Documentar quando uma nova fonte melhorou, piorou ou apenas aumentou ruido
-  - Preparar base para futuro eval harness automatizado
+- [x] **T110** - Criar eval deterministico de retrieval no CI
+  - Branch planejada: `feature/T110-deterministic-retrieval-eval`
+  - Adicionar `AI_PROVIDER=test` com hashing vectorizer deterministico
+  - Criar fixtures estaveis em `eval/fixtures`
+  - Criar dataset em `eval/questions.yaml`
+  - Criar `cmd/eval` para chamar `/rag/ask` e calcular metricas deterministicas
+  - Rodar eval em todo PR via GitHub Actions
+  - Publicar resultado no GitHub Step Summary
+  - Falhar o workflow quando thresholds modestos nao forem atingidos
+  - Manter LangSmith, LLM-as-judge e eval de resposta final como futuro
 - [ ] **T102** - Adotar fluxo de branches vinculadas a tarefas
   - Criar branches sempre a partir de `main`
   - Usar padrao `<tipo>/T###-<escopo-curto>`
